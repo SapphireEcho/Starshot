@@ -169,9 +169,7 @@ public sealed partial class ScreenshotSetting : PageBase
                 }
             }
         }
-    } = AppConfig.SdrWhiteLevelOverride > 0
-        ? AppConfig.SdrWhiteLevelOverride
-        : 250;
+    } = AppConfig.SdrWhiteLevelOverride > 0 ? AppConfig.SdrWhiteLevelOverride : 250;
 
     public ScreenshotSetting()
     {
@@ -184,8 +182,7 @@ public sealed partial class ScreenshotSetting : PageBase
             new Run
             {
                 // 当前显示器的 SDR 白（不受覆写影响），无 HDR 屏时为 fallback 250
-                Text =
-                    $"{AppConfig.GetSdrWhiteLevelFromDisplays(DisplayArea.FindAll())} nit",
+                Text = $"{AppConfig.GetSdrWhiteLevelFromDisplays(DisplayArea.FindAll())} nit",
                 Foreground = (Microsoft.UI.Xaml.Media.Brush)
                     Application.Current.Resources["SystemFillColorSuccessBrush"],
             }

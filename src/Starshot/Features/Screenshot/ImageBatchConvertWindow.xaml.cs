@@ -541,8 +541,7 @@ public sealed partial class ImageBatchConvertWindow : PageBase
             else
             {
                 long delta = item.OutputFileSize - item.SourceFileSize;
-                double percent =
-                    item.SourceFileSize == 0 ? 0 : (double)delta / item.SourceFileSize;
+                double percent = item.SourceFileSize == 0 ? 0 : (double)delta / item.SourceFileSize;
                 item.FileDeltaPercent = percent switch
                 {
                     > 0 => $"+{percent:P0}",
@@ -822,12 +821,15 @@ public sealed partial class ImageBatchConvertWindow : PageBase
         {
             throw new NotSupportedException("Ultra HDR JPG is only applicable to HDR images.");
         }
-        float maxCLL = ScreenCaptureService
-            .GetContentLightLevels(imageInfo.CanvasBitmap)
-            .MaxCLL;
+        float maxCLL = ScreenCaptureService.GetContentLightLevels(imageInfo.CanvasBitmap).MaxCLL;
         using var ms = new MemoryStream();
         // SDR 白用 AppConfig 统一定义（与截图回退、查看器默认值同源）
-        await ImageSaver.SaveAsUhdrAsync(imageInfo.CanvasBitmap, ms, maxCLL, AppConfig.SdrWhiteLevel);
+        await ImageSaver.SaveAsUhdrAsync(
+            imageInfo.CanvasBitmap,
+            ms,
+            maxCLL,
+            AppConfig.SdrWhiteLevel
+        );
         using var fs = File.Create(outputPath);
         ms.Position = 0;
         await ms.CopyToAsync(fs, CancellationToken.None);

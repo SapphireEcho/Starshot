@@ -245,8 +245,8 @@ internal class ScreenCaptureService
         {
             var size = sdrCrop.SizeInPixels;
             byte[] pixels = sdrCrop.GetPixelBytes();
-            var lines = await Task.Run(
-                () => OcrHelper.RecognizeAsync(pixels, (int)size.Width, (int)size.Height, 1.0)
+            var lines = await Task.Run(() =>
+                OcrHelper.RecognizeAsync(pixels, (int)size.Width, (int)size.Height, 1.0)
             );
             if (lines is null)
             {
@@ -333,6 +333,8 @@ internal class ScreenCaptureService
             for (int i = 0; i < displays.Count; i++)
             {
                 var d = displays[i];
+                // 物理像素同量纲相减（OuterBounds 与 SM_*VIRTUALSCREEN 均为物理 px），
+                // composite 与屏幕物理像素 1:1，各屏原生帧按此摆放
                 var bounds = d.OuterBounds;
                 int ox = bounds.X - vx;
                 int oy = bounds.Y - vy;

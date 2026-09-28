@@ -188,9 +188,7 @@ public static class OcrHelper
             var words = new List<OcrWord>(line.Words.Count);
             foreach (var w in line.Words)
             {
-                words.Add(
-                    new OcrWord(SquashCjkSpaces(w.Text), ScaleRect(w.BoundingRect, restore))
-                );
+                words.Add(new OcrWord(SquashCjkSpaces(w.Text), ScaleRect(w.BoundingRect, restore)));
             }
             lines.Add(
                 new OcrLine(

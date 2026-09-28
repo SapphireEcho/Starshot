@@ -47,7 +47,13 @@ internal static class HotkeyManager
         try
         {
             foreach (
-                var item in new HotkeyInfo[] { ScreenshotCapture, RegionCapture, RegionCopyOnly, RegionOcrCopy }
+                var item in new HotkeyInfo[]
+                {
+                    ScreenshotCapture,
+                    RegionCapture,
+                    RegionCopyOnly,
+                    RegionOcrCopy,
+                }
             )
             {
                 User32.HotKeyModifiers modifiers = User32.HotKeyModifiers.MOD_NONE;
@@ -110,7 +116,15 @@ internal static class HotkeyManager
     /// </summary>
     public static void ShowRegistrationErrors()
     {
-        foreach (var item in new HotkeyInfo[] { ScreenshotCapture, RegionCapture, RegionCopyOnly, RegionOcrCopy })
+        foreach (
+            var item in new HotkeyInfo[]
+            {
+                ScreenshotCapture,
+                RegionCapture,
+                RegionCopyOnly,
+                RegionOcrCopy,
+            }
+        )
         {
             if (item.ErrorShown || item.Error.Succeeded)
                 continue;
