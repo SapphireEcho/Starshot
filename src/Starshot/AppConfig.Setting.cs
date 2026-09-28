@@ -124,7 +124,14 @@ public static partial class AppConfig
     }
 
     /// <summary>
-    /// 开机自启：实时读注册表 HKCU\...\Run\Starshot 是否存在（用户可能在外部禁用，不能缓存到配置）
+    /// 开机自启标识名，注册表 Run 值名与计划任务名共用（二者同构）：
+    /// 注册表 <c>HKCU\...\Run\{AutoStartName}</c>，计划任务 <c>\{AutoStartName}</c>。
+    /// 改名后旧版注册的 Run 值与计划任务都会失联，需在设置页重开关一次自启 /「高优先级启动」重建。
+    /// </summary>
+    public const string AutoStartName = "Starshot.Autorun";
+
+    /// <summary>
+    /// 开机自启：实时读注册表 HKCU\...\Run\{AutoStartName} 是否存在（用户可能在外部禁用，不能缓存到配置）
     /// </summary>
     public static bool EnableAutoStart
     {
@@ -135,7 +142,7 @@ public static partial class AppConfig
                 using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
                     @"Software\Microsoft\Windows\CurrentVersion\Run"
                 );
-                return key?.GetValue("Starshot") is not null;
+                return key?.GetValue(AutoStartName) is not null;
             }
             catch
             {
@@ -157,7 +164,7 @@ public static partial class AppConfig
         try
         {
             using var ts = new TaskService();
-            if (ts.GetTask("Starshot") is not null)
+            if (ts.GetTask(AutoStartName) is not null)
                 return;
         }
         catch { }
@@ -167,7 +174,7 @@ public static partial class AppConfig
             using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
                 @"Software\Microsoft\Windows\CurrentVersion\Run"
             );
-            string? cmd = key?.GetValue("Starshot") as string;
+            string? cmd = key?.GetValue(AutoStartName) as string;
             if (string.IsNullOrWhiteSpace(cmd))
                 return;
             string exePath = cmd.Trim();
@@ -188,7 +195,7 @@ public static partial class AppConfig
                     @"Software\Microsoft\Windows\CurrentVersion\Run",
                     writable: true
                 );
-                wkey?.DeleteValue("Starshot", throwOnMissingValue: false);
+                wkey?.DeleteValue(AutoStartName, throwOnMissingValue: false);
                 AutoStartInvalid = true;
             }
         }
@@ -200,7 +207,7 @@ public static partial class AppConfig
         try
         {
             using var ts = new TaskService();
-            var task = ts.GetTask("Starshot");
+            var task = ts.GetTask(AutoStartName);
             if (task is null)
                 return;
             var action = task.Definition.Actions.OfType<ExecAction>().FirstOrDefault();

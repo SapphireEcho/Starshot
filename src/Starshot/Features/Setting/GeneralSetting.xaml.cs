@@ -145,7 +145,7 @@ public sealed partial class GeneralSetting : PageBase
         try
         {
             using var ts = new TaskService();
-            return ts.GetTask("Starshot") is not null;
+            return ts.GetTask(AppConfig.AutoStartName) is not null;
         }
         catch
         {
@@ -186,7 +186,8 @@ public sealed partial class GeneralSetting : PageBase
     public bool AutoStartEnabled => !PriorityStart;
 
     /// <summary>
-    /// Task Scheduler 高优先级启动（ONLOGON + High），独立于注册表 Run
+    /// Task Scheduler 启动（ONLOGON 登录触发），独立于注册表 Run。
+    /// 名称里的「高优先级」指登录触发的启动时机早于注册表 Run 排队，任务本身不设 Priority。
     /// </summary>
     private bool _priorityStart = IsTaskExists();
     public bool PriorityStart
@@ -225,7 +226,7 @@ public sealed partial class GeneralSetting : PageBase
         try
         {
             using var ts = new TaskService();
-            return ts.GetTask("Starshot") is not null;
+            return ts.GetTask(AppConfig.AutoStartName) is not null;
         }
         catch
         {
@@ -334,7 +335,6 @@ public sealed partial class GeneralSetting : PageBase
         };
 
     private static readonly string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunValueName = "Starshot";
 
     private void UpdateAutoStartRegistry(bool enable)
     {
@@ -348,11 +348,11 @@ public sealed partial class GeneralSetting : PageBase
             {
                 string launcherPath = GetLauncherPath();
                 string args = AppConfig.AutoStartMinimized ? " --hide" : "";
-                key.SetValue(RunValueName, $"\"{launcherPath}\"{args}");
+                key.SetValue(AppConfig.AutoStartName, $"\"{launcherPath}\"{args}");
             }
             else
             {
-                key.DeleteValue(RunValueName, throwOnMissingValue: false);
+                key.DeleteValue(AppConfig.AutoStartName, throwOnMissingValue: false);
             }
         }
         catch (Exception ex)
@@ -362,9 +362,11 @@ public sealed partial class GeneralSetting : PageBase
     }
 
     /// <summary>
-    /// Task Scheduler 高优先级启动（ONLOGON 触发 + High 优先级），独立于注册表 Run。
+    /// 建 / 删计划任务的实际动作：拉起自身提权子进程执行 <c>--manage-task create|delete</c>，
+    /// 由子进程（Program.cs）调 TaskScheduler API 完成注册 / 删除。
     /// </summary>
-    /// <returns>true 成功（ExitCode 0）；false 失败（子进程异常或非 0 退出）</returns>
+    /// <param name="enable">true 建任务，false 删任务。</param>
+    /// <returns>true 成功（子进程 ExitCode 0）；false 失败（用户取消 UAC、子进程启动失败或非 0 退出）</returns>
     private async Task<bool> UpdateAutoStartTaskAsync(bool enable)
     {
         try
