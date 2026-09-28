@@ -136,6 +136,7 @@ public sealed partial class GeneralSetting : PageBase
         OnPropertyChanged(nameof(AutoStartMinimizedVisibility));
         OnPropertyChanged(nameof(PriorityStartVisibility));
         OnPropertyChanged(nameof(PriorityStart));
+        NotifyAutoStartStatusChanged();
     }
 
     private static bool IsAutoStartActive()
@@ -173,6 +174,7 @@ public sealed partial class GeneralSetting : PageBase
             else
                 UpdateAutoStartRegistry(true);
         }
+        NotifyAutoStartStatusChanged();
     }
 
     public Visibility AutoStartMinimizedVisibility =>
@@ -216,6 +218,7 @@ public sealed partial class GeneralSetting : PageBase
             OnPropertyChanged(nameof(AutoStartEnabled));
             OnPropertyChanged(nameof(PriorityStartHintVisibility));
         }
+        NotifyAutoStartStatusChanged();
     }
 
     public Visibility PriorityStartHintVisibility =>
@@ -232,6 +235,84 @@ public sealed partial class GeneralSetting : PageBase
         {
             return false;
         }
+    }
+
+    /// <summary>
+    /// 计划任务的真实状态：null = 任务不存在，true = 存在且启用，false = 存在但被禁用。
+    /// </summary>
+    private static bool? GetTaskRealState()
+    {
+        try
+        {
+            using var ts = new TaskService();
+            return ts.GetTask(AppConfig.AutoStartName)?.Enabled;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 注册表 Run 项的真实状态：null = Run 值不存在，true = 存在且启用，false = 存在但被禁用。
+    /// 任务管理器的「禁用」不改 Run 项，只在 StartupApproved\Run 下写一条 12 字节记录：
+    /// 首字节 0x03 / 0x07 = 禁用，0x02 / 0x06 = 启用；没有记录表示从未改过，按启用处理。
+    /// </summary>
+    private static bool? GetRegistryAutoStartRealState()
+    {
+        try
+        {
+            using var run = Registry.CurrentUser.OpenSubKey(RunKeyPath);
+            if (run?.GetValue(AppConfig.AutoStartName) is null)
+                return null;
+            using var approved = Registry.CurrentUser.OpenSubKey(StartupApprovedRunKeyPath);
+            if (approved?.GetValue(AppConfig.AutoStartName) is not byte[] data || data.Length == 0)
+                return true;
+            byte flag = data[0];
+            return flag != 0x03 && flag != 0x07;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 开机自启的真实状态：走计划任务则查任务，否则查注册表 Run 项。
+    /// null = 未定义（本应用未创建任何自启项），true = 启用，false = 已被禁用。
+    /// </summary>
+    private bool? AutoStartRealState =>
+        PriorityStart ? GetTaskRealState() : GetRegistryAutoStartRealState();
+
+    /// <summary>开机自启当前状态文案（启用 / 禁用 / 未定义）</summary>
+    public string AutoStartStatusText =>
+        AutoStartRealState switch
+        {
+            true => Lang.Starshot_AutoStartStatusEnabled,
+            false => Lang.Starshot_AutoStartStatusDisabled,
+            null => Lang.Starshot_AutoStartStatusUndefined,
+        };
+
+    /// <summary>
+    /// 开机自启当前状态配色：启用 = 成功色，禁用 = 危险色，未定义 = 普通文字色。
+    /// 取自系统主题资源，不硬编码颜色值。
+    /// </summary>
+    public Microsoft.UI.Xaml.Media.Brush AutoStartStatusBrush =>
+        AutoStartRealState switch
+        {
+            true => (Microsoft.UI.Xaml.Media.Brush)
+                App.Current.Resources["SystemFillColorSuccessBrush"],
+            false => (Microsoft.UI.Xaml.Media.Brush)
+                App.Current.Resources["SystemFillColorCriticalBrush"],
+            null => (Microsoft.UI.Xaml.Media.Brush)
+                App.Current.Resources["TextFillColorPrimaryBrush"],
+        };
+
+    /// <summary>三个自启开关任一变动后刷新状态文案与配色</summary>
+    private void NotifyAutoStartStatusChanged()
+    {
+        OnPropertyChanged(nameof(AutoStartStatusText));
+        OnPropertyChanged(nameof(AutoStartStatusBrush));
     }
 
     public int UpdateSource
@@ -335,6 +416,12 @@ public sealed partial class GeneralSetting : PageBase
         };
 
     private static readonly string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
+
+    /// <summary>
+    /// 任务管理器「启动」页的启用 / 禁用记录。与 Run 项分离——禁用只写这里，Run 项本身不动。
+    /// </summary>
+    private static readonly string StartupApprovedRunKeyPath =
+        @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
 
     private void UpdateAutoStartRegistry(bool enable)
     {
