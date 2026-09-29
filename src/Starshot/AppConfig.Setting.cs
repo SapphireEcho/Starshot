@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -767,7 +768,10 @@ public static partial class AppConfig
         }
     }
 
-    public static T? GetValue<T>(T? defaultValue = default, [CallerMemberName] string? key = null)
+    public static T? GetValue<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        T? defaultValue = default,
+        [CallerMemberName] string? key = null
+    )
     {
         if (string.IsNullOrWhiteSpace(key))
         {
@@ -798,7 +802,9 @@ public static partial class AppConfig
         return defaultValue;
     }
 
-    private static T? ConvertFromString<T>(string? value, T? defaultValue = default)
+    private static T? ConvertFromString<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T
+    >(string? value, T? defaultValue = default)
     {
         if (value is null)
         {
