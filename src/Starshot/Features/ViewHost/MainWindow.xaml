@@ -189,7 +189,7 @@
         <TextBlock HorizontalAlignment="Center" FontSize="28" FontWeight="Bold" Text="Starshot" />
         <TextBlock
           HorizontalAlignment="Center"
-          FontSize="13"
+          FontSize="14"
           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
           Text="{x:Bind lang:Lang.Starshot_SplashTagline}"
         />

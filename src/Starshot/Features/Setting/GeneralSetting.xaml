@@ -193,7 +193,6 @@
             OnContent="{x:Bind lang:Lang.Starshot_AutoStart}"
           />
           <TextBlock
-            FontSize="14"
             VerticalAlignment="Center"
             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
             Visibility="{x:Bind PriorityStartHintVisibility}"
