@@ -296,6 +296,26 @@ public sealed partial class ClipboardPage : PageBase
         catch { }
     }
 
+    /// <summary>
+    /// Ctrl+A 全选：GridView 自带的全选要求焦点落在列表项上，焦点在页面其他位置（标题、
+    /// 工具条按钮）时不生效，故在页面根 Grid 兜一层；仅多选模式响应。
+    /// </summary>
+    private void RootGrid_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (!MutliSelect || e.Key is not Windows.System.VirtualKey.A)
+        {
+            return;
+        }
+        var ctrl = Microsoft
+            .UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control)
+            .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+        if (ctrl)
+        {
+            GridView_Images.SelectAll();
+            e.Handled = true;
+        }
+    }
+
     private async void OpenClipboardItem(ScreenshotItem item, bool autoOcr = false)
     {
         // 右键「识别文字」未就绪：检测留在主窗口，toast + 配置对话框都在主窗口，不开查看器

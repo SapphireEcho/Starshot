@@ -15,7 +15,7 @@
   x:DefaultBindMode="OneWay"
   mc:Ignorable="d"
 >
-  <Grid>
+  <Grid KeyDown="RootGrid_KeyDown">
     <Grid.RowDefinitions>
       <RowDefinition Height="44" />
       <RowDefinition />
