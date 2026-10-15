@@ -1283,40 +1283,31 @@
                 return ResourceManager.GetString("Starshot_AboutProjectRepo", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   查找类似 Privacy Policy 的本地化字符串。
+        /// </summary>
+        public static string Starshot_AboutPrivacyTitle {
+            get {
+                return ResourceManager.GetString("Starshot_AboutPrivacyTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 All data acquired and generated during your use of this software is stored exclusively on your personal device. For usage analytics purposes, we only generate and use anonymized statistical identifiers derived from device information, and we do not collect any personal or private information. 的本地化字符串。
+        /// </summary>
+        public static string Starshot_AboutPrivacy {
+            get {
+                return ResourceManager.GetString("Starshot_AboutPrivacy", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   查找类似 Next-generation native Windows HDR screenshot tool 的本地化字符串。
         /// </summary>
         public static string Starshot_AboutTagline {
             get {
                 return ResourceManager.GetString("Starshot_AboutTagline", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Reference for the window detection and interaction design of the region capture overlay. 的本地化字符串。
-        /// </summary>
-        public static string Starshot_AboutThanksShareX {
-            get {
-                return ResourceManager.GetString("Starshot_AboutThanksShareX", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   查找类似 Installer and updater powering the installer line 的本地化字符串。
-        /// </summary>
-        public static string Starshot_AboutThanksKachina {
-            get {
-                return ResourceManager.GetString("Starshot_AboutThanksKachina", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Screenshot core, codec engine, and window framework all originate from Starward, developed by @Scighost. 的本地化字符串。
-        /// </summary>
-        public static string Starshot_AboutThanksStarward {
-            get {
-                return ResourceManager.GetString("Starshot_AboutThanksStarward", resourceCulture);
             }
         }
         

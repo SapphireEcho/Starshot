@@ -796,20 +796,17 @@
   <data name="Starshot_AboutThanksTitle" xml:space="preserve">
     <value>謝辞</value>
   </data>
-  <data name="Starshot_AboutThanksStarward" xml:space="preserve">
-    <value>スクリーンショットコア、コーデックエンジン、ウィンドウフレームワークはStarward（@Scighost）のコードを基にしています。</value>
-  </data>
-  <data name="Starshot_AboutThanksShareX" xml:space="preserve">
-    <value>領域キャプチャオーバーレイのウィンドウ検出とインタラクション設計を参考にしました。</value>
-  </data>
-  <data name="Starshot_AboutThanksKachina" xml:space="preserve">
-    <value>インストーラー線のインストーラーおよびアップデーター（オンラインインストール、ファイル単位差分、ファイル単位検証）。</value>
-  </data>
   <data name="Starshot_AboutProjectHome" xml:space="preserve">
     <value>プロジェクトホームページ</value>
   </data>
   <data name="Starshot_AboutProjectRepo" xml:space="preserve">
     <value>リポジトリ</value>
+  </data>
+  <data name="Starshot_AboutPrivacyTitle" xml:space="preserve">
+    <value>プライバシーポリシー</value>
+  </data>
+  <data name="Starshot_AboutPrivacy" xml:space="preserve">
+    <value>本ソフトウェアの使用中に取得・生成されるすべてのデータは、お客様のデバイス内にのみ保存されます。製品の利用状況を統計するため、デバイス情報に基づく匿名化された統計識別子の生成・使用のみを行い、個人情報は一切収集いたしません。</value>
   </data>
   <data name="Starshot_OpenDataFolder" xml:space="preserve">
     <value>データフォルダーを開く</value>

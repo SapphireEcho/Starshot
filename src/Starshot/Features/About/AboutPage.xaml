@@ -76,87 +76,77 @@
             Text="{x:Bind lang:Lang.Starshot_AboutDesc}"
             TextWrapping="Wrap"
           />
-          <StackPanel Margin="0,8,0,0" Orientation="Horizontal" Spacing="6">
+          <Grid Margin="0,8,0,0" ColumnSpacing="6" RowSpacing="4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <TextBlock
               FontSize="13"
               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
               Text="{x:Bind lang:Lang.Starshot_AboutProjectHome}"
             />
-            <TextBlock FontSize="13">
+            <TextBlock Grid.Column="1" FontSize="13">
               <Hyperlink x:Name="WebSiteLink" UnderlineStyle="None">
                 <Run x:Name="WebSiteUrlText" />
               </Hyperlink>
             </TextBlock>
-          </StackPanel>
-          <StackPanel Margin="0,4,0,0" Orientation="Horizontal" Spacing="6">
             <TextBlock
+              Grid.Row="1"
               FontSize="13"
               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
               Text="{x:Bind lang:Lang.Starshot_AboutProjectRepo}"
             />
-            <TextBlock FontSize="13">
+            <TextBlock Grid.Row="1" Grid.Column="1" FontSize="13">
               <Hyperlink x:Name="RepoLink" UnderlineStyle="None">
                 <Run x:Name="RepoUrlText" />
               </Hyperlink>
             </TextBlock>
-          </StackPanel>
+            <TextBlock
+              Grid.Row="2"
+              FontSize="13"
+              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+              Text="{x:Bind lang:Lang.Starshot_AboutThanksTitle}"
+            />
+            <TextBlock Grid.Row="2" Grid.Column="1" FontSize="13" TextWrapping="Wrap">
+              <Hyperlink NavigateUri="https://github.com/Scighost/Starward" UnderlineStyle="None">
+                <Run Text="Starward" />
+              </Hyperlink>
+              <Run Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text=" · " />
+              <Hyperlink NavigateUri="https://github.com/ShareX/ShareX" UnderlineStyle="None">
+                <Run Text="ShareX" />
+              </Hyperlink>
+              <Run Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text=" · " />
+              <Hyperlink
+                NavigateUri="https://github.com/YuehaiTeam/kachina-installer"
+                UnderlineStyle="None"
+              >
+                <Run Text="kachina-installer" />
+              </Hyperlink>
+            </TextBlock>
+            <TextBlock
+              Grid.Row="3"
+              FontSize="13"
+              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+              Text="{x:Bind lang:Lang.Starshot_AboutPrivacyTitle}"
+            />
+            <TextBlock
+              Grid.Row="3"
+              Grid.Column="1"
+              FontSize="12"
+              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+              Text="{x:Bind lang:Lang.Starshot_AboutPrivacy}"
+              TextWrapping="Wrap"
+            />
+          </Grid>
         </StackPanel>
       </Border>
-
-      <TextBlock
-        Margin="0,4,0,0"
-        FontSize="16"
-        FontWeight="SemiBold"
-        Text="{x:Bind lang:Lang.Starshot_AboutThanksTitle}"
-      />
-
-      <StackPanel
-        Padding="24,12,24,12"
-        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
-        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-        BorderThickness="1"
-        CornerRadius="8"
-        Spacing="10"
-      >
-        <TextBlock FontSize="12" TextWrapping="Wrap">
-          <Run Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text="•  " />
-          <Hyperlink NavigateUri="https://github.com/Scighost/Starward" UnderlineStyle="None">
-            <Run FontWeight="SemiBold" Text="Starward" />
-          </Hyperlink>
-          <Run Text=" — " />
-          <Run
-            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-            Text="{x:Bind lang:Lang.Starshot_AboutThanksStarward}"
-          />
-        </TextBlock>
-
-        <TextBlock FontSize="12" TextWrapping="Wrap">
-          <Run Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text="•  " />
-          <Hyperlink NavigateUri="https://github.com/ShareX/ShareX" UnderlineStyle="None">
-            <Run FontWeight="SemiBold" Text="ShareX" />
-          </Hyperlink>
-          <Run Text=" — " />
-          <Run
-            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-            Text="{x:Bind lang:Lang.Starshot_AboutThanksShareX}"
-          />
-        </TextBlock>
-
-        <TextBlock FontSize="12" TextWrapping="Wrap">
-          <Run Foreground="{ThemeResource TextFillColorTertiaryBrush}" Text="•  " />
-          <Hyperlink
-            NavigateUri="https://github.com/YuehaiTeam/kachina-installer"
-            UnderlineStyle="None"
-          >
-            <Run FontWeight="SemiBold" Text="kachina-installer" />
-          </Hyperlink>
-          <Run Text=" — " />
-          <Run
-            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-            Text="{x:Bind lang:Lang.Starshot_AboutThanksKachina}"
-          />
-        </TextBlock>
-      </StackPanel>
 
       <StackPanel Margin="0,8,0,0" Orientation="Horizontal" Spacing="12">
         <Button

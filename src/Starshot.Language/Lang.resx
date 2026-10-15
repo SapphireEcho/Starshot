@@ -796,20 +796,17 @@
   <data name="Starshot_AboutThanksTitle" xml:space="preserve">
     <value>Acknowledgements</value>
   </data>
-  <data name="Starshot_AboutThanksStarward" xml:space="preserve">
-    <value>Screenshot core, codec engine, and window framework all originate from Starward, developed by @Scighost.</value>
-  </data>
-  <data name="Starshot_AboutThanksShareX" xml:space="preserve">
-    <value>Reference for the window detection and interaction design of the region capture overlay.</value>
-  </data>
-  <data name="Starshot_AboutThanksKachina" xml:space="preserve">
-    <value>Installer and updater powering the installer line (online install, per-file delta, per-file verification).</value>
-  </data>
   <data name="Starshot_AboutProjectHome" xml:space="preserve">
     <value>Project Homepage</value>
   </data>
   <data name="Starshot_AboutProjectRepo" xml:space="preserve">
     <value>Repository</value>
+  </data>
+  <data name="Starshot_AboutPrivacyTitle" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="Starshot_AboutPrivacy" xml:space="preserve">
+    <value>All data acquired and generated during your use of this software is stored exclusively on your personal device. For usage analytics purposes, we only generate and use anonymized statistical identifiers derived from device information, and we do not collect any personal or private information.</value>
   </data>
   <data name="Starshot_OpenDataFolder" xml:space="preserve">
     <value>Open Data Folder</value>
