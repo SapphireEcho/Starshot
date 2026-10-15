@@ -186,7 +186,7 @@
         }
 
         /// <summary>
-        ///   查找类似 Not in clipboard history (content too large) 的本地化字符串。
+        ///   查找类似 Not at the top of clipboard history 的本地化字符串。
         /// </summary>
         public static string ClipboardPage_NotInHistory {
             get {

@@ -197,7 +197,7 @@
     <value>No images in clipboard history</value>
   </data>
   <data name="ClipboardPage_NotInHistory" xml:space="preserve">
-    <value>Not in clipboard history (content too large)</value>
+    <value>Not at the top of clipboard history</value>
   </data>
   <data name="GachaImportAndExportWindow_Import" xml:space="preserve">
     <value>Import</value>

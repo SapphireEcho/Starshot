@@ -30,7 +30,7 @@
       Text="{x:Bind lang:Lang.Common_Clipboard}"
     />
 
-    <!--  当前剪贴板：内容过大未进系统历史时的实时展示（与历史第一条相同则隐藏，永不重复）  -->
+    <!--  当前剪贴板：不在历史首位的实时展示（与历史第一条相同则隐藏，永不重复）  -->
     <Border
       x:Name="Border_CurrentClipboard"
       Grid.Row="1"

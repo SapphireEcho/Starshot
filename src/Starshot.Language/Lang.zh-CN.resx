@@ -197,7 +197,7 @@
     <value>剪贴板历史中暂无图片</value>
   </data>
   <data name="ClipboardPage_NotInHistory" xml:space="preserve">
-    <value>未进入历史记录（内容过大）</value>
+    <value>未进入历史记录首位</value>
   </data>
   <data name="GachaImportAndExportWindow_Import" xml:space="preserve">
     <value>导入</value>

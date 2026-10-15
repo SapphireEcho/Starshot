@@ -307,7 +307,9 @@ public sealed partial class ClipboardPage : PageBase
             return;
         }
         var ctrl = Microsoft
-            .UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control)
+            .UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(
+                Windows.System.VirtualKey.Control
+            )
             .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
         if (ctrl)
         {
@@ -506,8 +508,8 @@ public sealed partial class ClipboardPage : PageBase
     private ScreenshotItem? _currentItem;
 
     /// <summary>
-    /// 更新「当前剪贴板」卡：读当前剪贴板图像，与历史第一条内容一致（小图，已进历史）则隐藏，
-    /// 不一致（内容过大被系统历史跳过 / 历史为空或未开启）则显示。任何失败静默收卡，绝不抛。
+    /// 更新「当前剪贴板」卡：读当前剪贴板图像，与历史第一条内容一致则隐藏（已在首位，不重复展示），
+    /// 不一致（不在首位：过大未进历史 / 旧项回放 / 历史为空或未开启）则显示。任何失败静默收卡，绝不抛。
     /// </summary>
     private async Task UpdateCurrentClipboardCardAsync()
     {
