@@ -162,6 +162,13 @@ public sealed partial class HotkeyInput : UserControl
             {
                 _pressedKeys.Remove(e.Key);
             }
+            // PrintScreen 的按下被系统吞掉（应用只收到抬起），补记按下状态让收尾流程照常走
+            if (e.Key is VirtualKey.Snapshot && _editingKey != VirtualKey.Snapshot)
+            {
+                _editingModifiers = GetKeyModifiers();
+                _editingKey = VirtualKey.Snapshot;
+                UpdateText();
+            }
             if (IsHotkeyAvaliable(_editingModifiers, _editingKey))
             {
                 if (_pressedKeys.Count == 0)
@@ -290,7 +297,10 @@ public sealed partial class HotkeyInput : UserControl
 
     private static bool IsHotkeyAvaliable(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        if (modifiers == 0 && key >= VirtualKey.F1 && key <= VirtualKey.F12)
+        if (
+            modifiers == 0
+            && ((key >= VirtualKey.F1 && key <= VirtualKey.F12) || key is VirtualKey.Snapshot)
+        )
         {
             return true;
         }
@@ -501,6 +511,8 @@ public sealed partial class HotkeyInput : UserControl
         [VirtualKey.F10] = "F10",
         [VirtualKey.F11] = "F11",
         [VirtualKey.F12] = "F12",
+
+        [VirtualKey.Snapshot] = "PrtSc",
 
         [(VirtualKey)192] = "`",
         [(VirtualKey)189] = "-",
