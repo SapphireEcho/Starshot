@@ -224,6 +224,25 @@
                 TextWrapping="Wrap"
               />
             </Grid>
+            <Grid ColumnSpacing="12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="140" />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind lang:Lang.Starshot_DebugTelemetryVm}"
+              />
+              <TextBlock
+                Grid.Column="1"
+                x:Name="TelemetryVmText"
+                VerticalAlignment="Center"
+                FontSize="12"
+                TextWrapping="Wrap"
+              />
+            </Grid>
           </StackPanel>
         </Expander>
       </StackPanel>

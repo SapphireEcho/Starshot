@@ -1878,6 +1878,33 @@
         }
 
         /// <summary>
+        ///   查找类似 Virtual machine 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryVm {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryVm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Yes 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryYes {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryYes", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 No 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryNo {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryNo", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   查找类似 None 的本地化字符串。
         /// </summary>
         public static string Starshot_DebugTelemetryNone {

@@ -1015,6 +1015,15 @@
   <data name="Starshot_DebugTelemetryPending" xml:space="preserve">
     <value>Pending update</value>
   </data>
+  <data name="Starshot_DebugTelemetryVm" xml:space="preserve">
+    <value>Virtual machine</value>
+  </data>
+  <data name="Starshot_DebugTelemetryYes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Starshot_DebugTelemetryNo" xml:space="preserve">
+    <value>No</value>
+  </data>
   <data name="Starshot_DebugTelemetryNone" xml:space="preserve">
     <value>None</value>
   </data>

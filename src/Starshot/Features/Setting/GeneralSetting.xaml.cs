@@ -98,11 +98,11 @@ public sealed partial class GeneralSetting : PageBase
     }
 
     /// <summary>
-    /// 调试页的统计状态快照（安装 ID / 上次发送 / 待上报更新）。只读展示，不参与任何逻辑。
+    /// 调试页的统计状态快照（安装 ID / 上次发送 / 待上报更新 / 是否虚拟机）。只读展示，不参与任何逻辑。
     /// </summary>
     private void RefreshTelemetryState()
     {
-        var (installId, lastSentDay, pendingUpdate) = TelemetryService.GetDebugInfo();
+        var (installId, lastSentDay, pendingUpdate, isVm) = TelemetryService.GetDebugInfo();
         TelemetryInstallIdText.Text = string.IsNullOrEmpty(installId)
             ? Lang.Starshot_DebugTelemetryNone
             : installId;
@@ -112,6 +112,7 @@ public sealed partial class GeneralSetting : PageBase
         TelemetryPendingText.Text = string.IsNullOrEmpty(pendingUpdate)
             ? Lang.Starshot_DebugTelemetryNone
             : pendingUpdate;
+        TelemetryVmText.Text = isVm ? Lang.Starshot_DebugTelemetryYes : Lang.Starshot_DebugTelemetryNo;
     }
 
     private void RefreshExtractState()

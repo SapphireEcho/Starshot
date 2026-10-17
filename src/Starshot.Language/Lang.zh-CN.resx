@@ -1015,6 +1015,15 @@
   <data name="Starshot_DebugTelemetryPending" xml:space="preserve">
     <value>待上报更新</value>
   </data>
+  <data name="Starshot_DebugTelemetryVm" xml:space="preserve">
+    <value>虚拟机</value>
+  </data>
+  <data name="Starshot_DebugTelemetryYes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="Starshot_DebugTelemetryNo" xml:space="preserve">
+    <value>否</value>
+  </data>
   <data name="Starshot_DebugTelemetryNone" xml:space="preserve">
     <value>无</value>
   </data>

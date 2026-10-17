@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -92,13 +93,15 @@ public static class TelemetryService
     }
 
     /// <summary>
+    /// <summary>
     /// 调试页展示用的状态快照。
     /// </summary>
-    public static (string installId, string lastSentDay, string pendingUpdate) GetDebugInfo() =>
+    public static (string installId, string lastSentDay, string pendingUpdate, bool isVm) GetDebugInfo() =>
         (
             AppConfig.TelemetryInstallId ?? "",
             AppConfig.TelemetryLastSentDay ?? "",
-            _pendingUpdate is { } upd ? $"{upd.from} → {upd.to}" : ""
+            _pendingUpdate is { } upd ? $"{upd.from} → {upd.to}" : "",
+            IsVirtualMachine()
         );
 
     /// <summary>
@@ -317,36 +320,91 @@ public static class TelemetryService
 
     /// <summary>
     /// 是否运行在虚拟机中。查询失败按物理机处理，不该拖垮心跳。
+    /// <para>
+    /// x64 走 CPUID，判据与任务管理器一致（任务管理器 RVA 0xc11f0 反汇编还原）：
+    /// <list type="number">
+    /// <item>leaf 1 的 ECX bit31 是 hypervisor 位，为 0 即不是虚拟机。</item>
+    /// <item>leaf 0x40000000 取 hypervisor 厂商串，**只跟 "Microsoft Hv" 比较一次**；
+    /// 其余厂商（VMware / VirtualBox / KVM / QEMU / Xen / Parallels …）不做任何区分，
+    /// 一律直接判定为虚拟机——任务管理器本身就是这么做的，二进制里根本没有那些厂商名。</item>
+    /// <item>只有厂商是 Microsoft Hv 时才多查一步：leaf 0x40000003 的 **EBX bit0**
+    /// 区分 root partition（开了 Hyper-V 的物理机，宿主本身）与 child partition（真正的客户机）。</item>
+    /// </list>
+    /// 这一步是 Hyper-V 专属后门：开了 Hyper-V / WSL2 / Windows 沙盒的物理机同样带 hypervisor 位，
+    /// 不排除就会被误判成虚拟机；而 VBS 等基于 Hyper-V 的安全功能也走这条分支，同样能被正确排除。
+    /// </para>
+    /// <para>
+    /// ARM64 没有 CPUID，退回 SMBIOS / 磁盘枚举的字符串匹配。
+    /// </para>
     /// </summary>
     private static bool IsVirtualMachine()
     {
         try
         {
-            using var bios = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS");
-            using var disk = Registry.LocalMachine.OpenSubKey(
-                @"SYSTEM\CurrentControlSet\Services\Disk\Enum"
-            );
-            string all = string.Join(
-                '|',
-                bios?.GetValue("SystemManufacturer") as string,
-                bios?.GetValue("SystemProductName") as string,
-                bios?.GetValue("SystemFamily") as string,
-                bios?.GetValue("BIOSVendor") as string,
-                bios?.GetValue("BIOSVersion") as string,
-                disk?.GetValue("0") as string
-            );
-            foreach (string marker in VmMarkers)
-            {
-                if (all.Contains(marker, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
+            if (X86Base.IsSupported)
+                return IsVirtualMachineByCpuid();
+            return IsVirtualMachineBySmbios();
         }
-        catch { }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// CPUID 判据，逐位还原任务管理器的实现。只在 x64 下调用。
+    /// </summary>
+    private static bool IsVirtualMachineByCpuid()
+    {
+        // leaf 1, ECX bit31 = hypervisor present
+        if ((X86Base.CpuId(1, 0).Ecx & (1u << 31)) == 0)
+            return false;
+
+        // leaf 0x40000000：EBX/ECX/EDX 依次是厂商 ID 的前 4/中 4/后 4 字节
+        var vendorLeaf = X86Base.CpuId(0x40000000, 0);
+        Span<byte> bytes = stackalloc byte[12];
+        BitConverter.TryWriteBytes(bytes[..4], vendorLeaf.Ebx);
+        BitConverter.TryWriteBytes(bytes[4..8], vendorLeaf.Ecx);
+        BitConverter.TryWriteBytes(bytes[8..], vendorLeaf.Edx);
+        string vendor = Encoding.ASCII.GetString(bytes).TrimEnd('\0');
+
+        // 非 Microsoft 的 hypervisor 一律算虚拟机，不再细分厂商
+        if (vendor != "Microsoft Hv")
+            return true;
+
+        // Hyper-V：EBX bit0 = 1 表示当前是 root partition（宿主物理机），0 才是真正的客户机
+        return (X86Base.CpuId(0x40000003, 0).Ebx & 1u) == 0;
+    }
+
+    /// <summary>
+    /// SMBIOS / 磁盘枚举的字符串匹配，ARM64 没有 CPUID 时用。
+    /// </summary>
+    private static bool IsVirtualMachineBySmbios()
+    {
+        using var bios = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS");
+        using var disk = Registry.LocalMachine.OpenSubKey(
+            @"SYSTEM\CurrentControlSet\Services\Disk\Enum"
+        );
+        string all = string.Join(
+            '|',
+            bios?.GetValue("SystemManufacturer") as string,
+            bios?.GetValue("SystemProductName") as string,
+            bios?.GetValue("SystemFamily") as string,
+            bios?.GetValue("BIOSVendor") as string,
+            bios?.GetValue("BIOSVersion") as string,
+            disk?.GetValue("0") as string
+        );
+        foreach (string marker in VmMarkers)
+        {
+            if (all.Contains(marker, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
         return false;
     }
 
     /// <summary>
     /// SMBIOS / 磁盘枚举里的虚拟机标识。都是厂商写入的固定串，不会出现在物理机上。
+    /// 仅 ARM64 的兜底路径使用。
     /// </summary>
     private static readonly string[] VmMarkers =
     [

@@ -1015,6 +1015,15 @@
   <data name="Starshot_DebugTelemetryPending" xml:space="preserve">
     <value>未送信の更新結果</value>
   </data>
+  <data name="Starshot_DebugTelemetryVm" xml:space="preserve">
+    <value>仮想マシン</value>
+  </data>
+  <data name="Starshot_DebugTelemetryYes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="Starshot_DebugTelemetryNo" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
   <data name="Starshot_DebugTelemetryNone" xml:space="preserve">
     <value>なし</value>
   </data>
