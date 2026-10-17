@@ -50,7 +50,9 @@ internal static class StartupUpdateCheck
         _pendingRelease = release;
         App.Current.SystemTray?.ShowNotification(
             Lang.Starshot_UpdateAvailableTitle,
-            string.Format(Lang.Starshot_UpdateAvailableTrayMessage, release.TagName)
+            string.Format(Lang.Starshot_UpdateAvailableTrayMessage, release.TagName),
+            // 点通知就是要点更新：直接开更新窗口，不碰主窗口
+            onClick: FlushPending
         );
     }
 

@@ -689,7 +689,7 @@
     <value>New version available!</value>
   </data>
   <data name="Starshot_UpdateAvailableTrayMessage" xml:space="preserve">
-    <value>{0} is ready. Click the tray icon to view details.</value>
+    <value>{0} is ready. Click the notification to view details.</value>
   </data>
   <data name="Starshot_LaunchUpdater" xml:space="preserve">
     <value>Launch Updater</value>

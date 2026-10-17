@@ -29,7 +29,8 @@ public static class Program
     [global::System.STAThreadAttribute]
     static int Main(string[] args)
     {
-        SetCurrentProcessExplicitAppUserModelID("loliri.Starshot");
+        // 通知头部直接显示这个字符串（未打包应用没有注册显示名）
+        SetCurrentProcessExplicitAppUserModelID("Starshot");
         // 提权子进程：--manage-task create/delete，以管理员权限调 TaskScheduler API 创建/删除任务后退出
         if (args.Length > 0 && args[0] == "--manage-task")
         {

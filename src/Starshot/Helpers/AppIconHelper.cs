@@ -29,6 +29,35 @@ internal static class AppIconHelper
         }
     }
 
+    /// <summary>
+    /// 按系统通知图标尺寸从 exe 内嵌图标取一帧（大=SM_CXICON，小=SM_CXSMICON）。
+    /// H.NotifyIcon 会校验句柄尺寸必须等于同一个 GetSystemMetrics 值，否则抛异常，所以这里必须按它取。
+    /// LR_SHARED 的句柄由系统托管，不能 DestroyIcon。
+    /// </summary>
+    public static nint LoadNotificationIcon(bool large)
+    {
+        try
+        {
+            int size = User32.GetSystemMetrics(
+                large ? User32.SystemMetric.SM_CXICON : User32.SystemMetric.SM_CXSMICON
+            );
+            nint hIcon = (nint)
+                User32.LoadImage(
+                    Kernel32.GetModuleHandle(null),
+                    "#32512",
+                    User32.LoadImageType.IMAGE_ICON,
+                    size,
+                    size,
+                    User32.LoadImageOptions.LR_SHARED
+                );
+            return hIcon;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
     /// <summary>System.Drawing.Icon → BitmapImage（PNG 内存流中转），失败返回 null。</summary>
     public static BitmapImage? ToBitmapImage(System.Drawing.Icon icon)
     {

@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -10,7 +11,6 @@ using Starshot.Frameworks;
 using Starshot.Helpers;
 using Vanara.PInvoke;
 using Windows.Foundation;
-using NotificationIcon = H.NotifyIcon.Core.NotificationIcon;
 
 namespace Starshot.Features.ViewHost;
 
@@ -31,6 +31,8 @@ public sealed partial class SystemTrayWindow : WindowEx
         this.InitializeComponent();
         InitializeWindow();
         SetTrayIcon();
+        // 气泡的点击回调只能走 MessageWindow：TaskbarIcon 上的 TrayBalloonTipClicked 在 WinUI 下不生成公开事件
+        trayIcon.TrayIcon.MessageWindow.MouseEventReceived += TrayIcon_MouseEventReceived;
         // 托盘窗口生命周期 = App 生命周期；--hide 启动时它是唯一窗口，必须由它注册热键。
         // 延迟到 DispatcherQueue 下一轮：非隐藏启动时等 MainWindow Loaded 设好 InAppToast.MainWindow，
         // 这样注册失败（被占用）时 toast 才能弹出来；MainWindow 已先注册时 IsRegistered 守卫会跳过。
@@ -42,7 +44,9 @@ public sealed partial class SystemTrayWindow : WindowEx
                 // --hide 自启没有主窗口，注册失败只能走托盘气泡（有主窗口时留给 MainWindow Loaded 的 toast）
                 if (App.Current.MainWindow is null)
                 {
-                    HotkeyManager.ShowRegistrationErrors(ShowNotification);
+                    HotkeyManager.ShowRegistrationErrors(
+                        (title, message) => ShowNotification(title, message)
+                    );
                 }
             });
         WeakReferenceMessenger.Default.Register<LanguageChangedMessage>(
@@ -146,14 +150,43 @@ public sealed partial class SystemTrayWindow : WindowEx
 
     /// <summary>
     /// 托盘气泡通知：后台产生、主窗口不可见时没处展示的消息走这里（更新提醒等）。
+    /// onClick 在用户点击通知时执行（Win11 横幅只在屏上停留几秒，错过就收不到）。
     /// </summary>
-    public void ShowNotification(string title, string message)
+    public void ShowNotification(string title, string message, Action? onClick = null)
     {
         try
         {
-            trayIcon.ShowNotification(title, message, NotificationIcon.Info);
+            _notificationClick = onClick;
+            nint icon = AppIconHelper.LoadNotificationIcon(large: true);
+            trayIcon.ShowNotification(
+                title,
+                message,
+                customIconHandle: icon != 0 ? icon : null,
+                largeIcon: true
+            );
         }
         catch { }
+    }
+
+    /// <summary>当前通知的点击动作（气泡本身不带载荷，靠这里记住点开该做什么）</summary>
+    private Action? _notificationClick;
+
+    private void TrayIcon_MouseEventReceived(
+        object? sender,
+        H.NotifyIcon.Core.MessageWindow.MouseEventReceivedEventArgs e
+    )
+    {
+        if (e.MouseEvent is not H.NotifyIcon.Core.MouseEvent.BalloonToolTipClicked)
+        {
+            return;
+        }
+        var action = _notificationClick;
+        _notificationClick = null;
+        if (action is null)
+        {
+            return;
+        }
+        DispatcherQueue.TryEnqueue(() => action());
     }
 
     private void SystemTrayWindow_Activated(object sender, WindowActivatedEventArgs args)
