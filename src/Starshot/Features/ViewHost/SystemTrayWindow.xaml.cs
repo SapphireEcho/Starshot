@@ -2,6 +2,7 @@ using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -186,7 +187,20 @@ public sealed partial class SystemTrayWindow : WindowEx
         {
             return;
         }
-        DispatcherQueue.TryEnqueue(() => action());
+        // 点击动作在 UI 线程执行，异常若逃出去会直接崩进程（气泡来源没有别的兜底）
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                AppConfig
+                    .GetLogger<SystemTrayWindow>()
+                    .LogError(ex, "Notification click action failed");
+            }
+        });
     }
 
     private void SystemTrayWindow_Activated(object sender, WindowActivatedEventArgs args)

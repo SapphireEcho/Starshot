@@ -24,6 +24,12 @@ public sealed partial class UpdateWindow : WindowEx
     private bool _launchingUpdater;
     private bool _userClosed;
 
+    /// <summary>
+    /// 窗口已关闭。取消/关窗后下载任务的续体与进度回调仍会回到 UI 线程，
+    /// 此时再碰 XAML 会抛 COM 异常（且发生在 catch 块内，无人接管会崩进程），一律先判此标志。
+    /// </summary>
+    private bool _closed;
+
     public string CurrentVersionText
     {
         get;
@@ -105,6 +111,7 @@ public sealed partial class UpdateWindow : WindowEx
         CenterInScreen(1000, 680);
         this.Closed += (_, _) =>
         {
+            _closed = true;
             // 拉起更新器后的退出是安装版线正常流程，不当用户取消处理（否则误弹「更新失败」）
             if (_cts is null || _launchingUpdater)
                 return;
@@ -141,12 +148,17 @@ public sealed partial class UpdateWindow : WindowEx
         try
         {
             var body = await ReleaseClient.GetGitHubReleaseBodyAsync(_release.TagName, default);
+            // 关窗后窗口已销毁，再写属性会抛（且发生在 catch 里，无人接管）
+            if (_closed)
+                return;
             ReleaseNotes = string.IsNullOrWhiteSpace(body)
                 ? "Release notes will be available once the update is published."
                 : body;
         }
         catch
         {
+            if (_closed)
+                return;
             ReleaseNotes = "Release notes will be available once the update is published.";
         }
     }
@@ -200,6 +212,9 @@ public sealed partial class UpdateWindow : WindowEx
         _cts = new CancellationTokenSource();
         var progress = new Progress<(int percent, string bytesText)>(p =>
         {
+            // 关窗/取消后进度回调仍会排队回到 UI 线程，窗口已销毁，不能再碰控件
+            if (_closed)
+                return;
             ProgressValue = p.percent;
             // 多层 delta：bytesText 格式 "1/3  2MB / 5MB"，百分比位置显示层号
             var sep = p.bytesText.IndexOf("  ");
@@ -230,6 +245,8 @@ public sealed partial class UpdateWindow : WindowEx
         {
             // 更新器彻底不可用（exe 缺失且 .instbak 损坏拉不起来）：这条更新链已死，唯一出路是重新下载。
             // 主按钮不恢复——坏状态不会自己好，恢复只会让用户重点再炸循环；「稍后提醒」恢复供关窗退出
+            if (_closed)
+                return;
             IsProgressVisible = Visibility.Collapsed;
             Button_Remind.IsEnabled = true;
             var dialog = new UpdaterMissingDialog { XamlRoot = RootGrid.XamlRoot };
@@ -237,6 +254,8 @@ public sealed partial class UpdateWindow : WindowEx
         }
         catch (Exception ex)
         {
+            if (_closed)
+                return;
             IsProgressVisible = Visibility.Collapsed;
             ErrorMessage = Lang.Starshot_UpdateFailed;
             HasError = Visibility.Visible;
