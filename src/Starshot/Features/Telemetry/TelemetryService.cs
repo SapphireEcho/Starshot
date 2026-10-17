@@ -240,6 +240,7 @@ public static class TelemetryService
             )
         );
         string lang = CultureInfo.CurrentUICulture.Name;
+        string locale = CultureInfo.CurrentCulture.Name;
 
         using var stream = new MemoryStream();
         using (var w = new Utf8JsonWriter(stream))
@@ -256,6 +257,7 @@ public static class TelemetryService
             w.WriteNumber("monitors", monitors);
             w.WriteBoolean("vm", IsVirtualMachine());
             w.WriteString("lang", string.IsNullOrEmpty(lang) ? "und" : lang);
+            w.WriteString("locale", string.IsNullOrEmpty(locale) ? "und" : locale);
             w.WriteString("src", src);
             if (_pendingUpdate is { } upd)
             {
