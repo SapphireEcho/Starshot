@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.AppLifecycle;
 using Starshot.Features.Telemetry;
+using Starshot.Features.Update;
 using Starshot.Features.ViewHost;
 using Windows.UI;
 
@@ -71,6 +72,8 @@ public partial class App : Application
         EnsureSystemTray();
         // 匿名心跳与托盘/全局热键同一条常驻生命周期：--hide 自启、从不打开主窗口的用户同样被统计
         TelemetryService.Start(_uiDispatcherQueue);
+        // 启动更新检查同理：不依附主窗口，检查在后台跑，呈现等主窗口可见或托盘气泡
+        StartupUpdateCheck.Start();
     }
 
     private AppInstance instance;
@@ -83,6 +86,11 @@ public partial class App : Application
     public MainWindow? MainWindow => m_MainWindow;
 
     private SystemTrayWindow? m_SystemTrayWindow;
+
+    /// <summary>
+    /// 托盘窗口（常驻宿主，同时承担后台通知：更新提醒等）
+    /// </summary>
+    public SystemTrayWindow? SystemTray => m_SystemTrayWindow;
 
     public void EnsureSystemTray()
     {

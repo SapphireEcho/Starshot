@@ -10,6 +10,7 @@ using Starshot.Frameworks;
 using Starshot.Helpers;
 using Vanara.PInvoke;
 using Windows.Foundation;
+using NotificationIcon = H.NotifyIcon.Core.NotificationIcon;
 
 namespace Starshot.Features.ViewHost;
 
@@ -131,6 +132,18 @@ public sealed partial class SystemTrayWindow : WindowEx
         try
         {
             trayIcon.Icon = AppIconHelper.GetAppIcon();
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// 托盘气泡通知：后台产生、主窗口不可见时没处展示的消息走这里（更新提醒等）。
+    /// </summary>
+    public void ShowNotification(string title, string message)
+    {
+        try
+        {
+            trayIcon.ShowNotification(title, message, NotificationIcon.Info);
         }
         catch { }
     }

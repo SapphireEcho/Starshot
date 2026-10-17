@@ -688,6 +688,9 @@
   <data name="Starshot_UpdateAvailableTitle" xml:space="preserve">
     <value>新しいバージョンがあります！</value>
   </data>
+  <data name="Starshot_UpdateAvailableTrayMessage" xml:space="preserve">
+    <value>{0} の準備ができました。トレイアイコンをクリックして詳細を確認してください。</value>
+  </data>
   <data name="Starshot_LaunchUpdater" xml:space="preserve">
     <value>更新プログラムを起動</value>
   </data>

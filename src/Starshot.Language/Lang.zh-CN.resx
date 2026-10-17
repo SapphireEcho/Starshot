@@ -688,6 +688,9 @@
   <data name="Starshot_UpdateAvailableTitle" xml:space="preserve">
     <value>发现新版本！</value>
   </data>
+  <data name="Starshot_UpdateAvailableTrayMessage" xml:space="preserve">
+    <value>{0} 已就绪，点击托盘图标查看详情。</value>
+  </data>
   <data name="Starshot_LaunchUpdater" xml:space="preserve">
     <value>启动更新程序</value>
   </data>

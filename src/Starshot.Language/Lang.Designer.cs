@@ -2389,6 +2389,15 @@
         }
         
         /// <summary>
+        ///   查找类似 {0} is ready. Click the tray icon to view details. 的本地化字符串。
+        /// </summary>
+        public static string Starshot_UpdateAvailableTrayMessage {
+            get {
+                return ResourceManager.GetString("Starshot_UpdateAvailableTrayMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Build Time 的本地化字符串。
         /// </summary>
         public static string Starshot_UpdateBuildTime {

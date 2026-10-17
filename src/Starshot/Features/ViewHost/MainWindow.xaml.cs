@@ -113,31 +113,9 @@ public sealed partial class MainWindow : WindowEx
                 AppConfig.TaskInvalid = false;
                 InAppToast.MainWindow?.Warning(null, Lang.Starshot_TaskInvalid, 5000);
             }
-            _ = TryCheckUpdateOnStartupAsync();
+            StartupUpdateCheck.FlushPending();
         };
         sb.Begin();
-    }
-
-    private static async Task TryCheckUpdateOnStartupAsync()
-    {
-#if !DEBUG
-        try
-        {
-            if (!AppConfig.EnableAutoUpdateCheck)
-                return;
-            long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            if (now - AppConfig.LastUpdateCheckTime < 86400)
-                return;
-            var (release, _) = await UpdateService.CheckUpdateAsync();
-            // 成功查询后才更新时间戳：网络失败抛异常会跳过本行（catch 兜底），下次启动即重试
-            AppConfig.LastUpdateCheckTime = now;
-            if (release is null)
-                return;
-            var window = new UpdateWindow();
-            window.SetRelease(release);
-        }
-        catch { }
-#endif
     }
 
     /// <summary>
@@ -167,6 +145,8 @@ public sealed partial class MainWindow : WindowEx
     {
         Activated -= MainWindow_Activated;
         NavView.SelectedItem = NavView.MenuItems[Math.Clamp(AppConfig.StartPage, 0, 1)];
+        // 主窗口从托盘重新打开时补弹后台检查挂起的新版本（首次启动由 splash 结束处的 FlushPending 负责）
+        StartupUpdateCheck.FlushPending();
     }
 
     private void NavView_SelectionChanged(
