@@ -93,7 +93,6 @@
               HotkeyEditFinished="HotkeyInput_HotkeyEditFinished"
               HotkeyEditing="HotkeyInput_HotkeyEditing"
               HotkeyId="44445"
-              WindowHandle="{x:Bind WindowHandle}"
             />
           </Grid>
         </Border>
@@ -163,7 +162,6 @@
               HotkeyEditFinished="HotkeyInput_HotkeyEditFinished"
               HotkeyEditing="HotkeyInput_HotkeyEditing"
               HotkeyId="44446"
-              WindowHandle="{x:Bind WindowHandle}"
             />
           </Grid>
         </Border>
@@ -233,7 +231,6 @@
               HotkeyEditFinished="HotkeyInput_HotkeyEditFinished"
               HotkeyEditing="HotkeyInput_HotkeyEditing"
               HotkeyId="44447"
-              WindowHandle="{x:Bind WindowHandle}"
             />
           </Grid>
         </Border>
@@ -304,7 +301,6 @@
               HotkeyEditFinished="HotkeyInput_HotkeyEditFinished"
               HotkeyEditing="HotkeyInput_HotkeyEditing"
               HotkeyId="44448"
-              WindowHandle="{x:Bind WindowHandle}"
             />
           </Grid>
         </Border>

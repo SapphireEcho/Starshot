@@ -13,8 +13,6 @@ public sealed partial class HotkeySetting : PageBase
 {
     private readonly ILogger<HotkeySetting> _logger = AppConfig.GetLogger<HotkeySetting>();
 
-    public nint WindowHandle => XamlRoot.GetWindowHandle();
-
     public HotkeySetting()
     {
         InitializeComponent();
@@ -37,7 +35,7 @@ public sealed partial class HotkeySetting : PageBase
     {
         try
         {
-            HotkeyManager.UnregisterHotkey(e.WindowHandle, e.HotkeyId);
+            HotkeyManager.UnregisterHotkey(e.HotkeyId);
         }
         catch { }
     }
@@ -61,9 +59,8 @@ public sealed partial class HotkeySetting : PageBase
             {
                 if (HotkeyManager.GetHotkeyInfo(input.HotkeyId) is not { } info)
                     continue;
-                HotkeyManager.UnregisterHotkey(WindowHandle, input.HotkeyId);
+                HotkeyManager.UnregisterHotkey(input.HotkeyId);
                 Win32Error error = HotkeyManager.RegisterHotkey(
-                    WindowHandle,
                     input.HotkeyId,
                     info.DefaultModifiers,
                     info.DefaultKey
@@ -112,7 +109,7 @@ public sealed partial class HotkeySetting : PageBase
         try
         {
             this.XamlRoot.Content.Focus(FocusState.Programmatic);
-            HotkeyManager.DeleteHotkey(e.WindowHandle, e.HotkeyId);
+            HotkeyManager.DeleteHotkey(e.HotkeyId);
         }
         catch { }
     }
@@ -125,7 +122,6 @@ public sealed partial class HotkeySetting : PageBase
             if (e.HotkeyAvaliable)
             {
                 Win32Error error = HotkeyManager.RegisterHotkey(
-                    e.WindowHandle,
                     e.HotkeyId,
                     (User32.HotKeyModifiers)e.fsModifiers,
                     (User32.VK)e.Key

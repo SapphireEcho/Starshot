@@ -53,9 +53,4 @@ internal static class XamlRootExtension
     {
         return AppWindow.GetFromWindowId(xamlRoot.ContentIslandEnvironment.AppWindowId);
     }
-
-    public static nint GetWindowHandle(this XamlRoot xamlRoot)
-    {
-        return (nint)xamlRoot.GetAppWindow().Id.Value;
-    }
 }

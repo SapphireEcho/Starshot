@@ -75,7 +75,7 @@ internal static class HotkeyManager
                 }
                 item.Modifiers = modifiers;
                 item.Key = key;
-                Win32Error error = RegisterHotkey(hwnd, item.Id, modifiers, key);
+                Win32Error error = RegisterHotkey(item.Id, modifiers, key);
                 if (error.Failed && InAppToast.MainWindow is not null)
                 {
                     item.ErrorShown = true;
@@ -131,15 +131,16 @@ internal static class HotkeyManager
                 continue;
             item.ErrorShown = true;
             string hotkey = HotkeyInput.GetHotkeyText((uint)item.Modifiers, (uint)item.Key);
-            string message = item.Error == Win32Error.ERROR_HOTKEY_ALREADY_REGISTERED
-                ? string.Format(
-                    Lang.HotkeyManager_TheShortcutKeys0IsAlreadyInUsePleaseModifyItInSettingsPage,
-                    hotkey
-                )
-                : string.Format(
-                    Lang.HotkeyManager_FailedToRegisterTheShortcutKeys0PleaseRetryInSettingsPage,
-                    hotkey
-                );
+            string message =
+                item.Error == Win32Error.ERROR_HOTKEY_ALREADY_REGISTERED
+                    ? string.Format(
+                        Lang.HotkeyManager_TheShortcutKeys0IsAlreadyInUsePleaseModifyItInSettingsPage,
+                        hotkey
+                    )
+                    : string.Format(
+                        Lang.HotkeyManager_FailedToRegisterTheShortcutKeys0PleaseRetryInSettingsPage,
+                        hotkey
+                    );
             if (InAppToast.MainWindow is not null)
                 InAppToast.MainWindow.Warning(null, message, 0);
             else if (trayNotify is not null)
@@ -147,12 +148,10 @@ internal static class HotkeyManager
         }
     }
 
-    public static Win32Error RegisterHotkey(
-        nint hwnd,
-        int id,
-        User32.HotKeyModifiers modifiers,
-        User32.VK key
-    )
+    /// <summary>
+    /// 热键注册到常驻宿主窗口（托盘窗口）的 hwnd，与主窗口是否存在无关。
+    /// </summary>
+    public static Win32Error RegisterHotkey(int id, User32.HotKeyModifiers modifiers, User32.VK key)
     {
         if (GetHotkeyInfo(id) is HotkeyInfo info)
         {
@@ -188,7 +187,7 @@ internal static class HotkeyManager
         }
     }
 
-    public static Win32Error UnregisterHotkey(nint hwnd, int id)
+    public static Win32Error UnregisterHotkey(int id)
     {
         User32.UnregisterHotKey(_registeredHwnd, id);
         Win32Error error = Kernel32.GetLastError();
@@ -200,7 +199,7 @@ internal static class HotkeyManager
         return error;
     }
 
-    public static Win32Error DeleteHotkey(nint hwnd, int id)
+    public static Win32Error DeleteHotkey(int id)
     {
         User32.UnregisterHotKey(_registeredHwnd, id);
         Win32Error error = Kernel32.GetLastError();

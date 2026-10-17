@@ -22,14 +22,6 @@ namespace Starshot.Features.ViewHost;
 
 public sealed partial class MainWindow : WindowEx
 {
-    private const int HOTKEY_CAPTURE = 44445;
-
-    private const int HOTKEY_REGION = 44446;
-
-    private const int HOTKEY_REGION_COPY = 44447;
-
-    private const int HOTKEY_REGION_OCR = 44448;
-
     public bool ForceExit;
 
     private SystemBackdropHelper? _backdropHelper;
@@ -206,25 +198,6 @@ public sealed partial class MainWindow : WindowEx
             else if (wParam == 0x8)
             {
                 AppBackground.PlayVideo(sessionUnlock: true);
-            }
-        }
-        else if (uMsg == (uint)User32.WindowMessage.WM_HOTKEY)
-        {
-            if (wParam == HOTKEY_CAPTURE)
-            {
-                ScreenCaptureService.Capture();
-            }
-            else if (wParam == HOTKEY_REGION)
-            {
-                ScreenCaptureService.CaptureRegion();
-            }
-            else if (wParam == HOTKEY_REGION_COPY)
-            {
-                ScreenCaptureService.CaptureRegionCopyOnly();
-            }
-            else if (wParam == HOTKEY_REGION_OCR)
-            {
-                ScreenCaptureService.CaptureRegionOcrCopy();
             }
         }
         else if (uMsg == (uint)User32.WindowMessage.WM_ACTIVATE)
