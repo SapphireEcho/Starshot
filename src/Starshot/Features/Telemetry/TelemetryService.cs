@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Graphics.Display;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
+using Microsoft.Win32;
 
 namespace Starshot.Features.Telemetry;
 
@@ -253,6 +254,7 @@ public static class TelemetryService
             w.WriteString("os", $"{os.Major}.{os.Minor}.{os.Build}");
             w.WriteBoolean("hdr", hdr);
             w.WriteNumber("monitors", monitors);
+            w.WriteBoolean("vm", IsVirtualMachine());
             w.WriteString("lang", string.IsNullOrEmpty(lang) ? "und" : lang);
             w.WriteString("src", src);
             if (_pendingUpdate is { } upd)
@@ -310,6 +312,56 @@ public static class TelemetryService
             return 1;
         }
     }
+
+    /// <summary>
+    /// 是否运行在虚拟机中。查询失败按物理机处理，不该拖垮心跳。
+    /// </summary>
+    private static bool IsVirtualMachine()
+    {
+        try
+        {
+            using var bios = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS");
+            using var disk = Registry.LocalMachine.OpenSubKey(
+                @"SYSTEM\CurrentControlSet\Services\Disk\Enum"
+            );
+            string all = string.Join(
+                '|',
+                bios?.GetValue("SystemManufacturer") as string,
+                bios?.GetValue("SystemProductName") as string,
+                bios?.GetValue("SystemFamily") as string,
+                bios?.GetValue("BIOSVendor") as string,
+                bios?.GetValue("BIOSVersion") as string,
+                disk?.GetValue("0") as string
+            );
+            foreach (string marker in VmMarkers)
+            {
+                if (all.Contains(marker, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+        catch { }
+        return false;
+    }
+
+    /// <summary>
+    /// SMBIOS / 磁盘枚举里的虚拟机标识。都是厂商写入的固定串，不会出现在物理机上。
+    /// </summary>
+    private static readonly string[] VmMarkers =
+    [
+        "VMware",
+        "VirtualBox",
+        "innotek",
+        "QEMU",
+        "Xen",
+        "Parallels",
+        "Virtual Machine",
+        "Virtual Disk",
+        "Hyper-V",
+        "Bochs",
+        "Bhyve",
+        "Amazon EC2",
+        "Google Compute Engine",
+    ];
 
     /// <summary>
     /// 配置读写一律回到 UI 线程执行，与现有设置写入同一条线程，不引入并发写 config.sjson。
