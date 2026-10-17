@@ -112,9 +112,10 @@ internal static class HotkeyManager
     }
 
     /// <summary>
-    /// 补弹注册失败提示：--hide 启动时 MainWindow 未建、toast 无宿主；MainWindow 打开后调此补弹未显示的错误。
+    /// 注册失败提示。有 toast 宿主（主窗口已建）走 in-app toast；否则走托盘气泡
+    /// （--hide 自启场景，否则热键失效无人知晓）。trayNotify 为 null 时只补弹 toast。
     /// </summary>
-    public static void ShowRegistrationErrors()
+    public static void ShowRegistrationErrors(Action<string, string>? trayNotify = null)
     {
         foreach (
             var item in new HotkeyInfo[]
@@ -130,24 +131,19 @@ internal static class HotkeyManager
                 continue;
             item.ErrorShown = true;
             string hotkey = HotkeyInput.GetHotkeyText((uint)item.Modifiers, (uint)item.Key);
-            if (item.Error == Win32Error.ERROR_HOTKEY_ALREADY_REGISTERED)
-                InAppToast.MainWindow?.Warning(
-                    null,
-                    string.Format(
-                        Lang.HotkeyManager_TheShortcutKeys0IsAlreadyInUsePleaseModifyItInSettingsPage,
-                        hotkey
-                    ),
-                    0
+            string message = item.Error == Win32Error.ERROR_HOTKEY_ALREADY_REGISTERED
+                ? string.Format(
+                    Lang.HotkeyManager_TheShortcutKeys0IsAlreadyInUsePleaseModifyItInSettingsPage,
+                    hotkey
+                )
+                : string.Format(
+                    Lang.HotkeyManager_FailedToRegisterTheShortcutKeys0PleaseRetryInSettingsPage,
+                    hotkey
                 );
-            else
-                InAppToast.MainWindow?.Warning(
-                    null,
-                    string.Format(
-                        Lang.HotkeyManager_FailedToRegisterTheShortcutKeys0PleaseRetryInSettingsPage,
-                        hotkey
-                    ),
-                    0
-                );
+            if (InAppToast.MainWindow is not null)
+                InAppToast.MainWindow.Warning(null, message, 0);
+            else if (trayNotify is not null)
+                trayNotify(Lang.Starshot_Nav_Hotkey, message);
         }
     }
 

@@ -36,7 +36,15 @@ public sealed partial class SystemTrayWindow : WindowEx
         // 这样注册失败（被占用）时 toast 才能弹出来；MainWindow 已先注册时 IsRegistered 守卫会跳过。
         DispatcherQueue
             .GetForCurrentThread()
-            .TryEnqueue(() => HotkeyManager.InitializeHotkey(WindowHandle));
+            .TryEnqueue(() =>
+            {
+                HotkeyManager.InitializeHotkey(WindowHandle);
+                // --hide 自启没有主窗口，注册失败只能走托盘气泡（有主窗口时留给 MainWindow Loaded 的 toast）
+                if (App.Current.MainWindow is null)
+                {
+                    HotkeyManager.ShowRegistrationErrors(ShowNotification);
+                }
+            });
         WeakReferenceMessenger.Default.Register<LanguageChangedMessage>(
             this,
             (_, _) => this.Bindings.Update()
