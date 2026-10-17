@@ -10,7 +10,6 @@ using Starshot.Frameworks;
 using Starshot.Helpers;
 using Starshot.Language;
 using Windows.Graphics;
-using Windows.Graphics.Capture;
 
 namespace Starshot.Features.ViewHost;
 
@@ -70,19 +69,6 @@ public sealed partial class WelcomeWindow : WindowEx
     // Window 没有 XamlRoot，包装 Content 的 XamlRoot 给 Picker 用
     public XamlRoot XamlRoot => (Content as FrameworkElement)?.XamlRoot!;
 
-    // DXGI 支持检测结果（互补的 Visibility）
-    public Visibility DxgiSupported
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = Visibility.Collapsed;
-
-    public Visibility DxgiNotSupported
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = Visibility.Collapsed;
-
     // 选完显示选中路径
     public string WallpaperDisplay
     {
@@ -100,24 +86,6 @@ public sealed partial class WelcomeWindow : WindowEx
         IsInstallerLine
             ? Lang.Starshot_WelcomeDbDescInstaller
             : Lang.Starshot_WelcomeDbDescPortable;
-
-    private async void Grid_Loaded(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            // 该 WinRT 调用跨套间列集时会同步泵回本线程 DispatcherQueue 消息，
-            // 在 XAML 事件处理器内同步调用会命中 XAML 重入保护直接 FailFast，故挪到线程池
-            // 只查 API 可用性：真截一张的实测判定有误判风险，API 检测是确定性结论
-            bool supported = await Task.Run(() => GraphicsCaptureSession.IsSupported());
-            DxgiSupported = supported ? Visibility.Visible : Visibility.Collapsed;
-            DxgiNotSupported = supported ? Visibility.Collapsed : Visibility.Visible;
-        }
-        catch
-        {
-            DxgiSupported = Visibility.Collapsed;
-            DxgiNotSupported = Visibility.Visible;
-        }
-    }
 
     [RelayCommand]
     private async Task PickWallpaper()

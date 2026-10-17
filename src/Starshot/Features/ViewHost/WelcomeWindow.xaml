@@ -11,7 +11,7 @@
   x:DefaultBindMode="OneWay"
   mc:Ignorable="d"
 >
-  <Grid Loaded="Grid_Loaded">
+  <Grid>
     <Image Source="ms-appx:///Assets/pic.jpg" Stretch="UniformToFill" />
     <Rectangle Fill="{ThemeResource ControlOnImageFillColorDefaultBrush}" />
 
@@ -29,46 +29,6 @@
         Text="{x:Bind lang:Lang.Starshot_WelcomeIntro}"
         TextWrapping="Wrap"
       />
-
-      <!--  DXGI 接口检测  -->
-      <TextBlock
-        Margin="0,12,0,0"
-        FontSize="16"
-        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-        Text="{x:Bind lang:Lang.Starshot_WelcomeDxgiTitle}"
-      />
-      <StackPanel Orientation="Horizontal" Spacing="12">
-        <TextBlock
-          VerticalAlignment="Center"
-          FontSize="14"
-          Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-          Text="{x:Bind lang:Lang.Starshot_WelcomeDxgiSupported}"
-          Visibility="{x:Bind DxgiSupported}"
-        />
-        <StackPanel Visibility="{x:Bind DxgiNotSupported}">
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="14"
-            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-            Text="{x:Bind lang:Lang.Starshot_WelcomeDxgiNotSupported1}"
-            TextWrapping="Wrap"
-          />
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="14"
-            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-            Text="{x:Bind lang:Lang.Starshot_WelcomeDxgiNotSupported2}"
-            TextWrapping="Wrap"
-          />
-          <TextBlock
-            VerticalAlignment="Center"
-            FontSize="14"
-            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-            Text="{x:Bind lang:Lang.Starshot_WelcomeDxgiNotSupported3}"
-            TextWrapping="Wrap"
-          />
-        </StackPanel>
-      </StackPanel>
 
       <!--  自定义壁纸  -->
       <TextBlock
@@ -115,6 +75,20 @@
         <Run Foreground="{ThemeResource SystemFillColorSuccessBrush}" Text="{x:Bind EditionName}" />
         <Run Text="{x:Bind DbFolderDescTail}" />
       </TextBlock>
+
+      <!--  隐私策略（与关于页同一份文案）  -->
+      <TextBlock
+        Margin="0,12,0,0"
+        FontSize="16"
+        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+        Text="{x:Bind lang:Lang.Starshot_AboutPrivacyTitle}"
+      />
+      <TextBlock
+        FontSize="13"
+        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+        Text="{x:Bind lang:Lang.Starshot_AboutPrivacy}"
+        TextWrapping="Wrap"
+      />
     </StackPanel>
 
     <!--  开始使用  -->
