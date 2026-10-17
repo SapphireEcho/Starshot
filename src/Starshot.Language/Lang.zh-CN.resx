@@ -806,7 +806,7 @@
     <value>隐私策略</value>
   </data>
   <data name="Starshot_AboutPrivacy" xml:space="preserve">
-    <value>您在使用本软件过程中获取和产生的全部数据，均仅保存在您的个人设备上。为统计产品使用情况，我们仅会基于设备信息生成并使用匿名化统计标识，不会收集任何个人隐私信息。</value>
+    <value>您在使用本软件过程中获取和产生的全部数据，均仅保存在您的个人设备上。为统计产品使用情况，我们仅会使用随机生成的匿名统计标识，不会收集任何个人隐私信息。</value>
   </data>
   <data name="Starshot_OpenDataFolder" xml:space="preserve">
     <value>打开数据目录</value>
@@ -999,6 +999,21 @@
   </data>
   <data name="Starshot_DebugSection" xml:space="preserve">
     <value>调试</value>
+  </data>
+  <data name="Starshot_DebugTelemetryTitle" xml:space="preserve">
+    <value>匿名统计</value>
+  </data>
+  <data name="Starshot_DebugTelemetryInstallId" xml:space="preserve">
+    <value>安装 ID</value>
+  </data>
+  <data name="Starshot_DebugTelemetryLastSent" xml:space="preserve">
+    <value>上次发送（UTC）</value>
+  </data>
+  <data name="Starshot_DebugTelemetryPending" xml:space="preserve">
+    <value>待上报更新</value>
+  </data>
+  <data name="Starshot_DebugTelemetryNone" xml:space="preserve">
+    <value>无</value>
   </data>
   <data name="Starshot_DebugSelect" xml:space="preserve">
     <value>选择</value>

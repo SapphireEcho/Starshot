@@ -308,6 +308,33 @@ public static partial class AppConfig
     }
 
     /// <summary>
+    /// 匿名统计安装 ID（32 位小写十六进制）：首次发送时随机生成，仅用于区分安装数，不含任何设备信息。
+    /// </summary>
+    public static string? TelemetryInstallId
+    {
+        get => GetValue<string?>();
+        set => SetValue(value);
+    }
+
+    /// <summary>
+    /// 上次成功发送心跳的 UTC 日期（yyyy-MM-dd），用于同一 UTC 日只发一次。
+    /// </summary>
+    public static string? TelemetryLastSentDay
+    {
+        get => GetValue<string?>();
+        set => SetValue(value);
+    }
+
+    /// <summary>
+    /// 上次启动时记录的版本号：与当前版本不同即发生过更新，启动日志与心跳据此判定。
+    /// </summary>
+    public static string? LastAppVersion
+    {
+        get => GetValue<string?>();
+        set => SetValue(value);
+    }
+
+    /// <summary>
     /// 官网地址（下载页等由此拼接）
     /// </summary>
     public const string WebSiteUrl = "https://starshot.cialo.site";
@@ -316,6 +343,11 @@ public static partial class AppConfig
     /// CDN 更新源基址（UpdateSource=Cloudflare 时用）
     /// </summary>
     public const string CdnBase = "https://starshot-release.cialo.site";
+
+    /// <summary>
+    /// 匿名统计接收端基址（Cloudflare Worker + D1）
+    /// </summary>
+    public const string TelemetryBase = "https://starshot-stats.cialo.site";
 
     /// <summary>
     /// GitHub 仓库基址（网页版；releases / blob 等链接由此拼接）

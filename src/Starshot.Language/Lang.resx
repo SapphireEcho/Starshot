@@ -806,7 +806,7 @@
     <value>Privacy Policy</value>
   </data>
   <data name="Starshot_AboutPrivacy" xml:space="preserve">
-    <value>All data acquired and generated during your use of this software is stored exclusively on your personal device. For usage analytics purposes, we only generate and use anonymized statistical identifiers derived from device information, and we do not collect any personal or private information.</value>
+    <value>All data acquired and generated during your use of this software is stored exclusively on your personal device. For usage analytics purposes, we only use a randomly generated anonymous statistical identifier, and we do not collect any personal or private information.</value>
   </data>
   <data name="Starshot_OpenDataFolder" xml:space="preserve">
     <value>Open Data Folder</value>
@@ -999,6 +999,21 @@
   </data>
   <data name="Starshot_DebugSection" xml:space="preserve">
     <value>Debug</value>
+  </data>
+  <data name="Starshot_DebugTelemetryTitle" xml:space="preserve">
+    <value>Anonymous Telemetry</value>
+  </data>
+  <data name="Starshot_DebugTelemetryInstallId" xml:space="preserve">
+    <value>Install ID</value>
+  </data>
+  <data name="Starshot_DebugTelemetryLastSent" xml:space="preserve">
+    <value>Last sent (UTC)</value>
+  </data>
+  <data name="Starshot_DebugTelemetryPending" xml:space="preserve">
+    <value>Pending update</value>
+  </data>
+  <data name="Starshot_DebugTelemetryNone" xml:space="preserve">
+    <value>None</value>
   </data>
   <data name="Starshot_DebugSelect" xml:space="preserve">
     <value>Browse</value>

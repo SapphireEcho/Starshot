@@ -8,6 +8,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.AppLifecycle;
+using Starshot.Features.Telemetry;
 using Starshot.Features.ViewHost;
 using Windows.UI;
 
@@ -68,6 +69,8 @@ public partial class App : Application
             m_MainWindow.Activate();
         }
         EnsureSystemTray();
+        // 匿名心跳与托盘/全局热键同一条常驻生命周期：--hide 自启、从不打开主窗口的用户同样被统计
+        TelemetryService.Start(_uiDispatcherQueue);
     }
 
     private AppInstance instance;

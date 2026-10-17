@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Win32;
 using Starshot.Features.Codec;
+using Starshot.Features.Telemetry;
 using Starshot.Features.Update;
 using Starshot.Frameworks;
 using Starshot.Helpers;
@@ -93,6 +94,24 @@ public sealed partial class GeneralSetting : PageBase
         base.OnNavigatedTo(e);
         s_activeInstance = this;
         RefreshExtractState();
+        RefreshTelemetryState();
+    }
+
+    /// <summary>
+    /// 调试页的统计状态快照（安装 ID / 上次发送 / 待上报更新）。只读展示，不参与任何逻辑。
+    /// </summary>
+    private void RefreshTelemetryState()
+    {
+        var (installId, lastSentDay, pendingUpdate) = TelemetryService.GetDebugInfo();
+        TelemetryInstallIdText.Text = string.IsNullOrEmpty(installId)
+            ? Lang.Starshot_DebugTelemetryNone
+            : installId;
+        TelemetryLastSentText.Text = string.IsNullOrEmpty(lastSentDay)
+            ? Lang.Starshot_DebugTelemetryNone
+            : lastSentDay;
+        TelemetryPendingText.Text = string.IsNullOrEmpty(pendingUpdate)
+            ? Lang.Starshot_DebugTelemetryNone
+            : pendingUpdate;
     }
 
     private void RefreshExtractState()

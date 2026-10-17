@@ -160,6 +160,72 @@
             </Grid>
           </StackPanel>
         </Expander>
+        <Expander
+          Header="{x:Bind lang:Lang.Starshot_DebugTelemetryTitle}"
+          HorizontalAlignment="Stretch"
+          HorizontalContentAlignment="Stretch"
+        >
+          <StackPanel Spacing="8">
+            <Grid ColumnSpacing="12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="140" />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind lang:Lang.Starshot_DebugTelemetryInstallId}"
+              />
+              <TextBlock
+                Grid.Column="1"
+                x:Name="TelemetryInstallIdText"
+                VerticalAlignment="Center"
+                FontSize="12"
+                TextWrapping="Wrap"
+                IsTextSelectionEnabled="True"
+              />
+            </Grid>
+            <Grid ColumnSpacing="12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="140" />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind lang:Lang.Starshot_DebugTelemetryLastSent}"
+              />
+              <TextBlock
+                Grid.Column="1"
+                x:Name="TelemetryLastSentText"
+                VerticalAlignment="Center"
+                FontSize="12"
+                TextWrapping="Wrap"
+              />
+            </Grid>
+            <Grid ColumnSpacing="12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="140" />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <TextBlock
+                VerticalAlignment="Center"
+                FontSize="12"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Text="{x:Bind lang:Lang.Starshot_DebugTelemetryPending}"
+              />
+              <TextBlock
+                Grid.Column="1"
+                x:Name="TelemetryPendingText"
+                VerticalAlignment="Center"
+                FontSize="12"
+                TextWrapping="Wrap"
+              />
+            </Grid>
+          </StackPanel>
+        </Expander>
       </StackPanel>
 
       <!--  开机自启  -->

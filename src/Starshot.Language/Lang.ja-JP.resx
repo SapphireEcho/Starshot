@@ -806,7 +806,7 @@
     <value>プライバシーポリシー</value>
   </data>
   <data name="Starshot_AboutPrivacy" xml:space="preserve">
-    <value>本ソフトウェアの使用中に取得・生成されるすべてのデータは、お客様のデバイス内にのみ保存されます。製品の利用状況を統計するため、デバイス情報に基づく匿名化された統計識別子の生成・使用のみを行い、個人情報は一切収集いたしません。</value>
+    <value>本ソフトウェアの使用中に取得・生成されるすべてのデータは、お客様のデバイス内にのみ保存されます。製品の利用状況を統計するため、ランダムに生成された匿名の統計識別子のみを使用し、個人情報は一切収集いたしません。</value>
   </data>
   <data name="Starshot_OpenDataFolder" xml:space="preserve">
     <value>データフォルダーを開く</value>
@@ -999,6 +999,21 @@
   </data>
   <data name="Starshot_DebugSection" xml:space="preserve">
     <value>デバッグ</value>
+  </data>
+  <data name="Starshot_DebugTelemetryTitle" xml:space="preserve">
+    <value>匿名統計</value>
+  </data>
+  <data name="Starshot_DebugTelemetryInstallId" xml:space="preserve">
+    <value>インストール ID</value>
+  </data>
+  <data name="Starshot_DebugTelemetryLastSent" xml:space="preserve">
+    <value>最終送信（UTC）</value>
+  </data>
+  <data name="Starshot_DebugTelemetryPending" xml:space="preserve">
+    <value>未送信の更新結果</value>
+  </data>
+  <data name="Starshot_DebugTelemetryNone" xml:space="preserve">
+    <value>なし</value>
   </data>
   <data name="Starshot_DebugSelect" xml:space="preserve">
     <value>参照</value>

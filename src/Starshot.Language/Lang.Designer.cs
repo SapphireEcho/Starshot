@@ -1840,7 +1840,52 @@
                 return ResourceManager.GetString("Starshot_DebugSection", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   查找类似 Anonymous Telemetry 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryTitle {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Install ID 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryInstallId {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryInstallId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Last sent (UTC) 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryLastSent {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryLastSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Pending update 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryPending {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryPending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 None 的本地化字符串。
+        /// </summary>
+        public static string Starshot_DebugTelemetryNone {
+            get {
+                return ResourceManager.GetString("Starshot_DebugTelemetryNone", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   查找类似 Browse 的本地化字符串。
         /// </summary>
