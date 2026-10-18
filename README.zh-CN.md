@@ -38,7 +38,7 @@ Starshot 使用 [Windows Graphics Capture](https://learn.microsoft.com/windows/u
 - 🔤 **文字识别（OCR）**——照片应用同款 OneOCR 引擎，查看器内拖选复制，全局快捷键一键取字
 - 🗂️ **多格式支持**——AVIF / JPEG XL / PNGv3 / Ultra HDR JPEG / PNG，含批量转换工具
 - 🖥️ **多显示器**——区域截图可跨屏框选，直接组合截取横跨多屏的图像
-- 🔄 **自动检查更新**——内置更新检查，发现新版可直接差量更新
+- 🔄 **自动检查更新**——后台定时检查，发现新版推送系统通知，点击直接打开更新窗口，可差量更新
 
 <div align="center">
 <table>
@@ -78,8 +78,8 @@ SDR 显示器上，Starshot 自动走标准 SDR 截图路径，是一款通用�
 
 两种分发方式，装哪种就走哪条更新线，互不交叉：
 
-- **便携版**：下载压缩包，解压后运行根目录的 `Starshot.exe` 启动器。无需安装，解压即用，数据存在解压目录。
 - **安装版**：下载在线安装程序（约 10MB，不含应用文件），安装时从 CDN 在线获取全部内容，需联网。应用装为扁平目录，安装信息存储在注册表，更新由更新器接管，支持差量更新、卸载等功能。
+- **便携版**：下载压缩包，解压后运行根目录的 `Starshot.exe` 启动器。无需安装，解压即用，数据存在解压目录。
 
 ## 软件截图
 
@@ -282,26 +282,30 @@ HDR 截图可同时保存一份 Ultra HDR JPEG（SDR 基图 + HDR gain map），
 - 区域截图覆盖层打开瞬间，光标仍**有概率**是系统默认形状，需**移动一次鼠标后**十字光标才出现，已尽最大努力修复，仍有小概率出现此情况，目前无解决方案，原因未知
 - JPEG XL 的 HDR 输出不写入内容亮度元数据（依赖的编码库封装层未暴露该接口），个别浏览器可能因此压暗高光；AVIF 与 PNGv3 已写入，不受影响
 - 视频壁纸启动时可能因 MF 媒体管线竞争初始化失败（间歇，未根治）；加载时先显示视频同目录的随机图片作占位，卡死则保持占位图，不黑屏
+- 应用通知需要向注册表注册应用身份，由于卸载器是外部维护，卸载时不会自动清理。残留项：
+  - `HKCU\Software\Classes\AppUserModelId\Starshot`（含 `DisplayName`、`IconUri`、`CustomActivator`），以及小图标缓存 `%LOCALAPPDATA%\Microsoft\WindowsAppSDK\Starshot.png`
+  - `HKCU\Software\Classes\CLSID\{CustomActivator 的值}\LocalServer32`
 
 ## 架构
 
 ### 目录结构
 
 ```
+安装目录/（安装版）
+  Starshot.exe            ← 主程序
+  Starshot.Update.exe     ← 更新器
+  Starshot.Uninst.exe     ← 卸载器
+  avifenc.exe 等          ← 编解码工具
+  *.dll 等                ← 依赖库
+
 根目录/（便携版）
   Starshot.exe            ← C++ 启动器（读 version.ini 决定启哪个 app 目录）
   config.sjson            ← 配置文件（JSON，首次启动生成）
   version.ini             ← 版本号（仅 CI/CD release 有，本地构建无）
   app-{version}/          ← 主程序目录（CI/CD release 版本化，本地构建为 app/）
-    Starshot.exe          ← 主程序（WinUI 3 / .NET 10）
+    Starshot.exe          ← 主程序
     *.dll                 ← 依赖库
     avifenc.exe 等        ← 编解码工具（来自 Starward.Codec NuGet）
-
-安装目录/（安装版，扁平）
-  Starshot.exe            ← 主程序（无启动器，无版本目录）
-  Starshot.Update.exe     ← kachina 更新器
-  Starshot.Uninst.exe     ← 卸载器
-  *.dll 等                ← 全部依赖平铺
 
 %LOCALAPPDATA%/Starshot/ （共用，可自定义其中部分内容存储位置）
   config.sjson            ← 配置文件（仅安装版有）
@@ -318,6 +322,7 @@ C++ 原生程序（~400KB）。读 `version.ini` 决定启动 `app-{version}/Sta
 ### 托盘与后台启动
 
 - `--hide` 自启时不创建 MainWindow，全局热键注册到 SystemTrayWindow 的 hwnd（托盘窗口作为常驻宿主）
+- 更新检查与遥测同样挂在常驻生命周期上：启动后 30~60 秒首查，之后每 5 小时一次，失败 10 分钟后重试；新版本优先发系统通知（可留在通知中心），通知不可用时回退托盘气泡
 - H.NotifyIcon.WinUI 的 TaskbarIcon 依赖 Window 的一次 Show 触发 `Loaded` 才注册图标；初始化时套 `WS_EX_LAYERED + alpha=0` 让窗口透明地完成这次 Show，避免 `--hide` 自启时可见闪烁
 - C++ 启动器用 `argv[1..]` 重新拼接透传命令
 

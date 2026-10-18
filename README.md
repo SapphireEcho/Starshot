@@ -36,7 +36,7 @@ Starshot captures game window content with [Windows Graphics Capture](https://le
 - 🔤 **Text Recognition (OCR)** — Same OneOCR engine as the Windows Photos app; drag-select and copy in the viewer, or grab text with a global shortcut
 - 🗂️ **Multi-format Support** — AVIF / JPEG XL / PNGv3 / Ultra HDR JPEG / PNG, including a batch conversion tool.
 - 🖥️ **Multi-Monitor** — Region screenshots can span across monitors, composing captures that cross screen boundaries.
-- 🔄 **Auto Update Check** — Built-in update check; delta updates on new releases.
+- 🔄 **Auto Update Check** — Checks in the background; new releases trigger a system notification that opens the update window when clicked, with delta updates.
 
 <div align="center">
 <table>
@@ -76,8 +76,8 @@ All installers can be downloaded from the [website download page](https://starsh
 
 Two distribution lines — whichever you install is the line you stay on; they never cross:
 
-- **Portable**: Download the archive, extract it, and run `Starshot.exe` from the root directory. No installation needed — just extract and run. Data lives in the extract folder.
 - **Installer**: Download the online installer (about 10MB, contains no app files); all content is fetched from the CDN during installation, so a network connection is required. The app installs into a flat directory, installation info is stored in the registry, and updates are handled by the bundled updater with delta updates, uninstall, and more.
+- **Portable**: Download the archive, extract it, and run `Starshot.exe` from the root directory. No installation needed — just extract and run. Data lives in the extract folder.
 
 ## Screenshots
 
@@ -280,26 +280,30 @@ Displays the logo + tagline on startup. Delays 700ms then fades out over 400ms. 
 - At the moment the region screenshot overlay opens, the cursor **may still sometimes** appear as the system default shape. The crosshair cursor appears only **after the mouse is moved once**. Despite our best efforts to fix this, it still occurs with a small probability. There is currently no solution, and the cause is unknown.
 - HDR JPEG XL output does not embed content light level metadata (the codec wrapper does not expose the API); some browsers may dim highlights as a result. AVIF and PNGv3 embed it and are not affected.
 - Video wallpaper may fail to initialize on startup due to MF media pipeline contention (intermittent, not fully resolved); during load a random image from the video's directory is shown as a placeholder, and kept if the video gets stuck — no black screen.
+- App notifications require registering the app identity in the registry. The uninstaller is maintained externally, so these entries are not removed on uninstall. Leftovers:
+  - `HKCU\Software\Classes\AppUserModelId\Starshot` (containing `DisplayName`, `IconUri`, `CustomActivator`), plus the small icon cache `%LOCALAPPDATA%\Microsoft\WindowsAppSDK\Starshot.png`
+  - `HKCU\Software\Classes\CLSID\{value of CustomActivator}\LocalServer32`
 
 ## Architecture
 
 ### Directory Structure
 
 ```
+InstalledDir/ (installer)
+  Starshot.exe            ← Main program
+  Starshot.Update.exe     ← Updater
+  Starshot.Uninst.exe     ← Uninstaller
+  avifenc.exe etc.        ← Codec tools
+  *.dll etc.              ← Dependencies
+
 Root/ (portable)
   Starshot.exe            ← C++ launcher (reads version.ini to decide which app dir to launch)
   config.sjson            ← Configuration file (JSON, generated on first launch)
   version.ini             ← Version number (CI/CD release only; absent in local builds)
   app-{version}/          ← Main program directory (versioned for CI/CD release, app/ for local builds)
-    Starshot.exe          ← Main program (WinUI 3 / .NET 10)
+    Starshot.exe          ← Main program
     *.dll                 ← Dependencies
     avifenc.exe etc.      ← Codec tools (from Starward.Codec NuGet)
-
-Install dir/ (installer, flat; the main exe carries an installer flag stamped into it — the runtime uses it to tell the lines apart)
-  Starshot.exe            ← Main program (no launcher, no version dirs)
-  Starshot.Update.exe     ← kachina updater
-  Starshot.Uninst.exe     ← Uninstaller
-  *.dll etc.              ← All dependencies flat
 
 %LOCALAPPDATA%/Starshot/  (shared)
   config.sjson            ← Configuration file (installer line only)
@@ -316,6 +320,7 @@ Native C++ program (~400KB). Reads `version.ini` to decide whether to launch `ap
 ### Tray & Background Startup
 
 - `--hide`: When auto-starting, MainWindow is not created. Global hotkeys are registered against SystemTrayWindow's hwnd (the tray window serves as the persistent host).
+- The update check and telemetry share the same resident lifetime: first check 30–60 seconds after launch, then every 5 hours, retrying 10 minutes after a failure. New versions are announced with a system notification (persists in Notification Center), falling back to a tray balloon when notifications are unavailable.
 - H.NotifyIcon.WinUI's TaskbarIcon requires one Window.Show to trigger `Loaded` before the icon registers. During initialization, `WS_EX_LAYERED + alpha=0` makes the window complete this show transparently, avoiding visible flash on `--hide` auto-start.
 - The C++ launcher re-joins `argv[1..]` to pass through command-line arguments.
 
