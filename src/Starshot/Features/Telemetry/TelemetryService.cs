@@ -299,13 +299,14 @@ public static class TelemetryService
     }
 
     /// <summary>
-    /// 显示器数量。查询失败按 1 处理（至少要有一块屏才能跑起来），不拖垮心跳。
+    /// 显示器数量。服务端要求 ≥1，而 FindAll 返回空列表时 Count 是 0（不抛异常），
+    /// 会收到 400 并被当成已发送，当天数据丢失；因此无论查询失败还是空列表都兜底为 1。
     /// </summary>
     private static int CountDisplays()
     {
         try
         {
-            return DisplayArea.FindAll().Count;
+            return Math.Max(1, DisplayArea.FindAll().Count);
         }
         catch
         {
