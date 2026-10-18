@@ -8,6 +8,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Windows.AppLifecycle;
+using Starshot.Features.Notifications;
 using Starshot.Features.Telemetry;
 using Starshot.Features.Update;
 using Starshot.Features.ViewHost;
@@ -60,9 +61,17 @@ public partial class App : Application
         AppConfig.CheckAutoStartValidity();
         AppConfig.CheckTaskValidity();
 
+        // 应用通知：先订阅点击并注册身份，再读冷启动激活参数（顺序不能反）
+        AppNotificationService.Initialize(_uiDispatcherQueue, StartupUpdateCheck.ShowPendingUpdate);
+
         bool startHidden = Environment
             .GetCommandLineArgs()
             .Contains("--hide", StringComparer.OrdinalIgnoreCase);
+        // 点通知冷启动：只起托盘和后台服务，不弹主窗口
+        if (AppNotificationService.HandleActivation(instance.GetActivatedEventArgs()))
+        {
+            startHidden = true;
+        }
 
         if (!startHidden)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Starshot.Features.Notifications;
 
 namespace Starshot.Features.Update;
 
@@ -93,13 +94,26 @@ internal static class StartupUpdateCheck
             return;
         }
         _pendingRelease = release;
-        App.Current.SystemTray?.ShowNotification(
+        // 优先走应用通知（能留在通知中心）；提权等不支持的环境退回托盘气泡
+        bool shown = AppNotificationService.ShowUpdate(
             Lang.Starshot_UpdateAvailableTitle,
-            string.Format(Lang.Starshot_UpdateAvailableTrayMessage, release.TagName),
-            // 点通知就是要点更新：直接开更新窗口，不碰主窗口
-            onClick: FlushPending
+            string.Format(Lang.Starshot_UpdateAvailableTrayMessage, release.TagName)
         );
+        if (!shown)
+        {
+            App.Current.SystemTray?.ShowNotification(
+                Lang.Starshot_UpdateAvailableTitle,
+                string.Format(Lang.Starshot_UpdateAvailableTrayMessage, release.TagName),
+                // 点通知就是要点更新：直接开更新窗口，不碰主窗口
+                onClick: FlushPending
+            );
+        }
     }
+
+    /// <summary>
+    /// 通知被点击（含应用未运行时的冷启动点击）：直接打开更新窗口，不经过主窗口。
+    /// </summary>
+    public static void ShowPendingUpdate() => FlushPending();
 
     /// <summary>
     /// 主窗口可见后调用（首次启动 splash 结束 / 从托盘重新打开）：把挂起的新版本弹出来。
