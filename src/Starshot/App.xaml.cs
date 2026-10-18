@@ -81,8 +81,8 @@ public partial class App : Application
         EnsureSystemTray();
         // 匿名心跳与托盘/全局热键同一条常驻生命周期：--hide 自启、从不打开主窗口的用户同样被统计
         TelemetryService.Start(_uiDispatcherQueue);
-        // 更新检查同理：不依附主窗口，进程内每 5 小时查一次，呈现等主窗口可见或托盘气泡
-        StartupUpdateCheck.Start();
+        // 更新检查同理：不依附主窗口，进程内每 5 小时查一次，呈现等主窗口可见或应用通知
+        StartupUpdateCheck.Start(_uiDispatcherQueue);
     }
 
     private AppInstance instance;

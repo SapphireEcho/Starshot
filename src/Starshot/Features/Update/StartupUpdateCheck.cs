@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.UI.Dispatching;
 using Starshot.Features.Notifications;
 
 namespace Starshot.Features.Update;
@@ -9,12 +10,12 @@ namespace Starshot.Features.Update;
 /// 自动更新检查：与托盘/全局热键/心跳同一条常驻生命周期，--hide 自启、从不打开主窗口的用户也照常检查。
 /// 进程内每 5 小时查一次（启动后 30~60 秒随机首查，与心跳同节奏），长驻数天也能收到新版本。
 /// 查询失败时改为 10 分钟后重试，成功后再回到 5 小时节奏。
-/// 呈现分两种：主窗口可见 → 直接弹更新窗口；否则托盘气泡提示并挂起，等主窗口可见时再弹
+/// 呈现分两种：主窗口可见 → 直接弹更新窗口；否则发应用通知并挂起，等主窗口可见时再弹
 /// （不在登录后凭空弹窗打断用户操作）。
 /// </summary>
 internal static class StartupUpdateCheck
 {
-    /// <summary>与心跳一致的首次延迟（随机区间，避免同机多实例同时打接口）</summary>
+    /// <summary>与心跳一致的首次延迟（随机区间，避免所有用户在同一时刻打接口）</summary>
     private const int InitialDelayMinSeconds = 30;
 
     private const int InitialDelayMaxSeconds = 60;
@@ -28,15 +29,24 @@ internal static class StartupUpdateCheck
 
     private static bool _updateWindowOpen;
 
+    /// <summary>
+    /// 检查由 Timer 在线程池上发起，而 Present 要读 MainWindow.Visible、创建窗口，
+    /// 必须切回 UI 线程，否则跨线程访问 WinUI 对象抛异常，被 catch 吞掉后永远不显示。
+    /// </summary>
+#if !DEBUG
+    private static DispatcherQueue? _dispatcher;
+#endif
+
 #if !DEBUG
     private static Timer? _timer;
 
     private static int _busy;
 #endif
 
-    public static void Start()
+    public static void Start(DispatcherQueue dispatcher)
     {
 #if !DEBUG
+        _dispatcher = dispatcher;
         if (_timer is not null)
             return;
         _timer = new Timer(
@@ -60,7 +70,11 @@ internal static class StartupUpdateCheck
             var (release, _) = await UpdateService.CheckUpdateAsync();
             if (release is null)
                 return;
+#if !DEBUG
+            _dispatcher?.TryEnqueue(() => Present(release));
+#else
             Present(release);
+#endif
         }
         catch
         {
