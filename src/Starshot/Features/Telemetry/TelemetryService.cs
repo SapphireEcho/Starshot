@@ -24,9 +24,15 @@ public static class TelemetryService
 {
     private const string Endpoint = AppConfig.TelemetryBase + "/v1/ping";
 
-    private const int InitialDelaySeconds = 30;
+    private const int InitialDelayMinSeconds = 30;
 
-    private const int IntervalSeconds = 3600;
+    private const int InitialDelayMaxSeconds = 60;
+
+    /// <summary>进程内轮询间隔（与更新检查同节奏）</summary>
+    private const int IntervalHours = 5;
+
+    /// <summary>发送失败后的重试间隔：5 小时对一次临时网络故障来说太长</summary>
+    private const int RetryDelayMinutes = 10;
 
     private static readonly HttpClient _http = CreateClient();
 
@@ -34,17 +40,13 @@ public static class TelemetryService
     // 绑到 SilentLogger 上，之后全局 Logger 被替换也不会更新，日志永远不落盘）
     private static readonly ILogger _logger = AppConfig.GetLogger("TelemetryService");
 
+#if !DEBUG
     private static Timer? _timer;
+#endif
 
     private static int _busy;
 
-    /// <summary>当天失败次数与所属 UTC 日（仅进程内，重启重新计数）</summary>
-    private static int _failedAttempts;
-
-    private static string? _failedAttemptDay;
-
-    private const int MaxRetriesPerDay = 3;
-
+    /// <summary>UI 线程队列（Start 里赋值；Debug 构建不启动调度，保持 null 时 RunOnUiThread 直接在当前线程执行）</summary>
     private static DispatcherQueue? _dispatcher;
 
     /// <summary>
@@ -58,29 +60,25 @@ public static class TelemetryService
     /// </summary>
     public static void Start(DispatcherQueue dispatcher)
     {
+        _dispatcher = dispatcher;
+#if DEBUG
+        // Debug 构建不发任何请求：直接不挂计时器
+        return;
+#else
         if (_timer is not null)
             return;
-        _dispatcher = dispatcher;
+        // 本地构建（0.0.0-local）不发任何请求：直接不挂计时器
+        if (AppConfig.AppVersion.EndsWith("-local", StringComparison.OrdinalIgnoreCase))
+            return;
         // 启动时已由 BuildServiceProvider 比对过 LastAppVersion，这里取走同一次判定结果
-        if (TrackingEnabled && AppConfig.TakePendingVersionFrom() is { } from)
+        if (AppConfig.TakePendingVersionFrom() is { } from)
             _pendingUpdate = (from, AppConfig.AppVersion);
         _timer = new Timer(
             _ => _ = TickAsync(),
             null,
-            InitialDelaySeconds * 1000,
-            IntervalSeconds * 1000
+            Random.Shared.Next(InitialDelayMinSeconds, InitialDelayMaxSeconds + 1) * 1000,
+            IntervalHours * 3600 * 1000
         );
-    }
-
-    /// <summary>
-    /// Debug 构建与本地构建（0.0.0-local）不发任何请求。
-    /// </summary>
-    private static bool TrackingEnabled
-    {
-#if DEBUG
-        get => false;
-#else
-        get => !AppConfig.AppVersion.EndsWith("-local", StringComparison.OrdinalIgnoreCase);
 #endif
     }
 
@@ -93,10 +91,14 @@ public static class TelemetryService
     }
 
     /// <summary>
-    /// <summary>
     /// 调试页展示用的状态快照。
     /// </summary>
-    public static (string installId, string lastSentDay, string pendingUpdate, bool isVm) GetDebugInfo() =>
+    public static (
+        string installId,
+        string lastSentDay,
+        string pendingUpdate,
+        bool isVm
+    ) GetDebugInfo() =>
         (
             AppConfig.TelemetryInstallId ?? "",
             AppConfig.TelemetryLastSentDay ?? "",
@@ -116,25 +118,34 @@ public static class TelemetryService
 
     private static async Task TickAsync()
     {
-        // 当天失败达到上限就歇到换日，避免整点反复打一个不可用的服务端
-        string today = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        if (_failedAttemptDay == today && _failedAttempts >= MaxRetriesPerDay)
-            return;
         if (!NeedsSend)
+        {
+            // 当天已发过（或无需发送）：保持 5 小时节奏
+            ApplyInterval(success: true);
             return;
-        await SendAsync();
+        }
+        bool success = await SendAsync();
+        ApplyInterval(success);
+    }
+
+    /// <summary>失败 → 10 分钟后重试；成功 → 恢复 5 小时节奏</summary>
+    private static void ApplyInterval(bool success)
+    {
+#if !DEBUG
+        _timer?.Change(
+            success ? TimeSpan.FromHours(IntervalHours) : TimeSpan.FromMinutes(RetryDelayMinutes),
+            TimeSpan.FromHours(IntervalHours)
+        );
+#endif
     }
 
     private static async Task<bool> SendAsync()
     {
-        // 定时器与调试按钮可能撞车，只放行一个
+        // 上一次发送尚未结束就再次进入：不重入，按成功处理以免把节奏切到重试
         if (Interlocked.CompareExchange(ref _busy, 1, 0) != 0)
-            return false;
+            return true;
         try
         {
-            if (!TrackingEnabled)
-                return false;
-
             string? id = EnsureInstallId();
             if (id is null)
             {
@@ -164,35 +175,19 @@ public static class TelemetryService
                 return code == 204;
             }
 
-            // 5xx / 网络错误：不改状态，等下一个整点重试（当天最多 3 次）
+            // 5xx / 网络错误：不改状态，10 分钟后再试
             _logger.LogWarning("Telemetry send failed: HTTP {Code}", code);
-            NoteFailure();
             return false;
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Telemetry send failed");
-            NoteFailure();
             return false;
         }
         finally
         {
             Interlocked.Exchange(ref _busy, 0);
         }
-    }
-
-    /// <summary>
-    /// 记一次当天失败（进程内计数，换日自动清零）。
-    /// </summary>
-    private static void NoteFailure()
-    {
-        string today = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        if (_failedAttemptDay != today)
-        {
-            _failedAttemptDay = today;
-            _failedAttempts = 0;
-        }
-        _failedAttempts++;
     }
 
     /// <summary>

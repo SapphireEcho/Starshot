@@ -230,7 +230,7 @@ public static partial class AppConfig
     }
 
     /// <summary>
-    /// 启动时自动检查更新（节流 24h）
+    /// 自动检查更新（进程内每 5 小时一次）
     /// </summary>
     public static bool EnableAutoUpdateCheck
     {
@@ -286,15 +286,6 @@ public static partial class AppConfig
     public static string? IgnoreVersion
     {
         get => GetValue<string?>();
-        set => SetValue(value);
-    }
-
-    /// <summary>
-    /// 上次检查更新的 Unix 时间戳（秒），用于节流
-    /// </summary>
-    public static long LastUpdateCheckTime
-    {
-        get => GetValue(0L);
         set => SetValue(value);
     }
 
