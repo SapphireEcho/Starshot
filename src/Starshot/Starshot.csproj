@@ -98,6 +98,9 @@
     <Content Include="..\logo.png" Link="Assets\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\update.png" Link="Assets\update.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="Assets\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

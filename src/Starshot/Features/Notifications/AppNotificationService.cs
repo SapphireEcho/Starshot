@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
@@ -18,6 +20,8 @@ internal static class AppNotificationService
 
     private const string UpdateAction = "update";
 
+    private static readonly ILogger _logger = AppConfig.GetLogger("AppNotificationService");
+
     private static DispatcherQueue? _dispatcher;
 
     private static Action? _onUpdateActivated;
@@ -32,7 +36,12 @@ internal static class AppNotificationService
         _dispatcher = dispatcher;
         _onUpdateActivated = onUpdateActivated;
         if (!AppNotificationManager.IsSupported())
+        {
+            _logger.LogWarning(
+                "App notifications unsupported (elevated process?), falling back to tray"
+            );
             return;
+        }
         try
         {
             var manager = AppNotificationManager.Default;
@@ -42,34 +51,59 @@ internal static class AppNotificationService
             manager.Register();
             IsAvailable = true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Register app notifications failed, falling back to tray");
             IsAvailable = false;
         }
     }
 
-    /// <summary>更新提醒。点击后直接打开更新窗口，不经过主窗口。</summary>
+    /// <summary>
+    /// 更新提醒。点击后直接打开更新窗口，不经过主窗口。
+    /// 返回 false 表示没有真正发出去（未注册、系统通知被关闭、Show 抛异常），调用方应回退托盘气泡。
+    /// </summary>
     public static bool ShowUpdate(string title, string message)
     {
         if (!IsAvailable)
+        {
+            _logger.LogWarning("App notification unavailable, falling back to tray");
             return false;
+        }
         try
         {
+            // 用户关掉本应用通知或系统静音时 Show 仍会静默成功，必须先看设置再决定是否回退
+            var setting = AppNotificationManager.Default.Setting;
+            if (setting != AppNotificationSetting.Enabled)
+            {
+                _logger.LogWarning(
+                    "App notifications disabled ({Setting}), falling back to tray",
+                    setting
+                );
+                return false;
+            }
             var notification = new AppNotificationBuilder()
                 .AddArgument("action", UpdateAction)
                 .AddText(title)
                 .AddText(message)
+                .SetAppLogoOverride(AppLogoUri)
                 .BuildNotification();
             // 同 Tag 覆盖旧通知，避免多次检查在通知中心堆一屏
             notification.Tag = UpdateTag;
             AppNotificationManager.Default.Show(notification);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Show app notification failed, falling back to tray");
             return false;
         }
     }
+
+    /// <summary>
+    /// 通知正文左侧的大图标，必须用正方形图。
+    /// </summary>
+    private static Uri AppLogoUri =>
+        new(Path.Combine(AppContext.BaseDirectory, "Assets", "update.png"));
 
     /// <summary>
     /// 处理应用激活参数。应用未运行时点击通知，进程带 ----AppNotificationActivated: 启动，

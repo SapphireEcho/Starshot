@@ -152,6 +152,8 @@ public sealed partial class SystemTrayWindow : WindowEx
     /// <summary>
     /// 托盘气泡通知：后台产生、主窗口不可见时没处展示的消息走这里（更新提醒等）。
     /// onClick 在用户点击通知时执行（Win11 横幅只在屏上停留几秒，错过就收不到）。
+    /// 图标与主路径的应用通知不一致：这里用 exe 内嵌的 logo.ico（Win32 HICON 接口只吃句柄），
+    /// 应用通知用 Assets/update.png（只吃文件路径）。
     /// </summary>
     public void ShowNotification(string title, string message, Action? onClick = null)
     {
