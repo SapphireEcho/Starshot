@@ -229,15 +229,6 @@ public static partial class AppConfig
         set => SetValue(value);
     }
 
-    /// <summary>
-    /// 自动检查更新（进程内每 5 小时一次）
-    /// </summary>
-    public static bool EnableAutoUpdateCheck
-    {
-        get => GetValue(true);
-        set => SetValue(value);
-    }
-
     private static bool? _installer;
 
     /// <summary>

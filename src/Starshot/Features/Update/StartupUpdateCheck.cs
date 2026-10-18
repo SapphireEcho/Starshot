@@ -56,8 +56,6 @@ internal static class StartupUpdateCheck
         bool failed = false;
         try
         {
-            if (!AppConfig.EnableAutoUpdateCheck)
-                return;
             var (release, _) = await UpdateService.CheckUpdateAsync();
             if (release is null)
                 return;
