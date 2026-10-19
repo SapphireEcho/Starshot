@@ -154,10 +154,18 @@ public static class TelemetryService
                 return false;
             }
 
-            string body = BuildPayload(id);
-            using var content = new StringContent(body, Encoding.UTF8, "application/json");
-            using var resp = await _http.PostAsync(Endpoint, content).ConfigureAwait(false);
-            int code = (int)resp.StatusCode;
+            var (code, respBody) = await PostAsync(id).ConfigureAwait(false);
+
+            // 服务端拒收安装 ID（配置被手改或损坏）：清掉重生成，立即补发一次。
+            // 只补发一次——重生成的 ID 仍是 Guid，再被拒说明不是 ID 的问题，避免死循环。
+            if (code == 400 && respBody.Contains("bad field: id", StringComparison.Ordinal))
+            {
+                _logger.LogWarning("Telemetry install id rejected by server, regenerating");
+                RunOnUiThread(() => AppConfig.TelemetryInstallId = null);
+                id = EnsureInstallId();
+                if (id is not null)
+                    (code, respBody) = await PostAsync(id).ConfigureAwait(false);
+            }
 
             if (code == 204 || code == 400 || code == 413)
             {
@@ -191,12 +199,40 @@ public static class TelemetryService
     }
 
     /// <summary>
-    /// 取安装 ID；不存在时生成并落盘。落盘失败返回 null。
+    /// 发一次心跳，返回状态码与响应体（响应体用于识别服务端拒绝的具体字段）。
+    /// </summary>
+    private static async Task<(int code, string body)> PostAsync(string id)
+    {
+        string body = BuildPayload(id);
+        using var content = new StringContent(body, Encoding.UTF8, "application/json");
+        using var resp = await _http.PostAsync(Endpoint, content).ConfigureAwait(false);
+        string respBody = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+        return ((int)resp.StatusCode, respBody);
+    }
+
+    /// <summary>
+    /// 安装 ID 格式：32 位小写十六进制，与服务端 validate() 的 RE_ID 一致。
+    /// </summary>
+    private static bool IsValidInstallId(string? id)
+    {
+        if (id is null || id.Length != 32)
+            return false;
+        foreach (char c in id)
+        {
+            if (c is not (>= '0' and <= '9') and not (>= 'a' and <= 'f'))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// 取安装 ID；不存在或格式不合法时重新生成并落盘。落盘失败返回 null。
     /// </summary>
     private static string? EnsureInstallId()
     {
         string? id = RunOnUiThread(() => AppConfig.TelemetryInstallId);
-        if (!string.IsNullOrEmpty(id))
+        // 配置被手改或损坏时本地就能发现，不用等一次网络往返
+        if (IsValidInstallId(id))
             return id;
         string generated = Guid.NewGuid().ToString("N");
         // SetValue 先改内存缓存再写盘，写盘异常被吞掉，回读属性看不出失败；回读文件才能确认真的落盘
