@@ -262,7 +262,7 @@ public static class TelemetryService
     private static string BuildPayload(string id)
     {
         // 配置读取与显示器查询都在 UI 线程取一次快照（WinRT 外呼不上 UI 线程），序列化留在后台线程
-        var (app, dist, src, hdr, monitors) = RunOnUiThread(() =>
+        var (app, dist, src, hdr, monitors, langSetting) = RunOnUiThread(() =>
             (
                 AppConfig.AppVersion,
                 AppConfig.Installer ? "installer" : "portable",
@@ -270,10 +270,19 @@ public static class TelemetryService
                 : AppConfig.UpdateSource == 0 ? "cdn"
                 : "github",
                 AnyHdrDisplay(),
-                CountDisplays()
+                CountDisplays(),
+                AppConfig.Language
             )
         );
-        string lang = CultureInfo.CurrentUICulture.Name;
+        // 界面语言只有三套资源（en / zh-CN / ja-JP）：配置为空表示跟随系统，此时按运行时生效的
+        // UI 文化判定（与 SetLanguage 同源），其余区域实际看到的是回退的英文，统一归到 en
+        string effective = langSetting ?? CultureInfo.CurrentUICulture.Name;
+        string lang = effective switch
+        {
+            "zh-CN" => "zh-CN",
+            "ja-JP" => "ja-JP",
+            _ => "en",
+        };
         string locale = CultureInfo.CurrentCulture.Name;
 
         using var stream = new MemoryStream();
@@ -290,7 +299,7 @@ public static class TelemetryService
             w.WriteBoolean("hdr", hdr);
             w.WriteNumber("monitors", monitors);
             w.WriteBoolean("vm", IsVirtualMachine());
-            w.WriteString("lang", string.IsNullOrEmpty(lang) ? "und" : lang);
+            w.WriteString("lang", lang);
             w.WriteString("locale", string.IsNullOrEmpty(locale) ? "und" : locale);
             w.WriteString("src", src);
             if (_pendingUpdate is { } upd)
