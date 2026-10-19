@@ -2899,5 +2899,23 @@
                 return ResourceManager.GetString("AppearanceSetting_InfoWindowDurationDesc", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   查找类似 Hide info window from screen capture 的本地化字符串。
+        /// </summary>
+        public static string AppearanceSetting_HideInfoWindowFromCapture {
+            get {
+                return ResourceManager.GetString("AppearanceSetting_HideInfoWindowFromCapture", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Sets WDA_EXCLUDEFROMCAPTURE, keeping the info window out of screen captures 的本地化字符串。
+        /// </summary>
+        public static string AppearanceSetting_HideInfoWindowFromCaptureDesc {
+            get {
+                return ResourceManager.GetString("AppearanceSetting_HideInfoWindowFromCaptureDesc", resourceCulture);
+            }
+        }
     }
 }

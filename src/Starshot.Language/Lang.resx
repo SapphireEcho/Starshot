@@ -1072,4 +1072,10 @@
   <data name="AppearanceSetting_InfoWindowDurationDesc" xml:space="preserve">
     <value>How long the info window stays after a capture is saved or copied (milliseconds)</value>
   </data>
+  <data name="AppearanceSetting_HideInfoWindowFromCapture" xml:space="preserve">
+    <value>Hide info window from screen capture</value>
+  </data>
+  <data name="AppearanceSetting_HideInfoWindowFromCaptureDesc" xml:space="preserve">
+    <value>Sets WDA_EXCLUDEFROMCAPTURE, keeping the info window out of screen captures.</value>
+  </data>
 </root>

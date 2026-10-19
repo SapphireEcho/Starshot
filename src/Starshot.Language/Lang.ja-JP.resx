@@ -1072,4 +1072,10 @@
   <data name="AppearanceSetting_InfoWindowDurationDesc" xml:space="preserve">
     <value>キャプチャの保存・コピー後に情報ウィンドウが表示される時間（ミリ秒）</value>
   </data>
+  <data name="AppearanceSetting_HideInfoWindowFromCapture" xml:space="preserve">
+    <value>情報ウィンドウを画面キャプチャから隠す</value>
+  </data>
+  <data name="AppearanceSetting_HideInfoWindowFromCaptureDesc" xml:space="preserve">
+    <value>WDA_EXCLUDEFROMCAPTURE を設定し、情報ウィンドウが画面キャプチャに写り込まないようにします。</value>
+  </data>
 </root>

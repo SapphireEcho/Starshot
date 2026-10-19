@@ -8,6 +8,7 @@ using CommunityToolkit.WinUI.Helpers;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Starshot.Features.Background;
+using Starshot.Features.Screenshot;
 using Starshot.Frameworks;
 using Starshot.Helpers;
 using Windows.System;
@@ -122,6 +123,20 @@ public sealed partial class AppearanceSetting : PageBase
             }
         }
     } = AppConfig.InfoWindowDuration;
+
+    /// <summary>WDA_EXCLUDEFROMCAPTURE</summary>
+    public bool HideInfoWindowFromCapture
+    {
+        get;
+        set
+        {
+            if (SetProperty(ref field, value))
+            {
+                AppConfig.HideInfoWindowFromCapture = value;
+                ScreenCaptureService.RefreshInfoWindowCaptureAffinity();
+            }
+        }
+    } = AppConfig.HideInfoWindowFromCapture;
 
     public Visibility WallpaperRowVisibility =>
         AppConfig.WallpaperMode == 0 ? Visibility.Collapsed : Visibility.Visible;

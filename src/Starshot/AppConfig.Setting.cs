@@ -649,6 +649,15 @@ public static partial class AppConfig
     }
 
     /// <summary>
+    /// WDA_EXCLUDEFROMCAPTURE. 默认开启。
+    /// </summary>
+    public static bool HideInfoWindowFromCapture
+    {
+        get => GetValue(true);
+        set => SetValue(value);
+    }
+
+    /// <summary>
     /// 截图文件名模板。占位符：{process} {processPath} {title} {timestamp} {time} {date} {width} {height} {year} {month} {day} {hour} {minute} {second}
     /// </summary>
     public static string ScreenshotFileNamePattern

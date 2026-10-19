@@ -64,6 +64,14 @@ internal class ScreenCaptureService
     }
 
     /// <summary>
+    /// 设置页切换「信息浮窗对屏幕捕获隐身」后，让已存在的浮窗立即应用新状态
+    /// </summary>
+    public static void RefreshInfoWindowCaptureAffinity()
+    {
+        Instance._infoWindow?.ApplyCaptureAffinity();
+    }
+
+    /// <summary>
     /// 获取窗口所在桌面的高级色彩信息
     /// </summary>
     public static DisplayInformation GetDisplayInformationFromWindowHandle(nint hwnd)

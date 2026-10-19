@@ -70,7 +70,15 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
             styleEx |= User32.WindowStylesEx.WS_EX_TOPMOST;
             User32.SetWindowLong(WindowHandle, User32.WindowLongFlags.GWL_EXSTYLE, (nint)styleEx);
         }
-        SetWindowDisplayAffinity(WindowHandle, 0x11); // WDA_EXCLUDEFROMCAPTURE：截图时此窗口不可见
+        ApplyCaptureAffinity();
+    }
+
+    /// <summary>
+    /// 按设置应用 WDA_EXCLUDEFROMCAPTURE。关闭时置 WDA_NONE。
+    /// </summary>
+    public void ApplyCaptureAffinity()
+    {
+        SetWindowDisplayAffinity(WindowHandle, AppConfig.HideInfoWindowFromCapture ? 0x11u : 0x0u);
     }
 
     private void ScreenCaptureInfoWindow_Closed(object sender, WindowEventArgs args)
