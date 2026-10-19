@@ -133,7 +133,7 @@ public sealed partial class UpdateWindow : WindowEx
                 ? "-"
                 : release.PublishedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss");
         ReleaseNotes = ReleaseNotesFormatter.Filter(release.Notes);
-        Activate();
+        Show();
         // CDN 模式 Notes 空（检查更新时没拿 body 避免阻塞）；弹出后异步加载，在乎的直接更新不等
         if (string.IsNullOrWhiteSpace(release.Notes))
         {

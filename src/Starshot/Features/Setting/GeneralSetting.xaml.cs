@@ -112,7 +112,9 @@ public sealed partial class GeneralSetting : PageBase
         TelemetryPendingText.Text = string.IsNullOrEmpty(pendingUpdate)
             ? Lang.Starshot_DebugTelemetryNone
             : pendingUpdate;
-        TelemetryVmText.Text = isVm ? Lang.Starshot_DebugTelemetryYes : Lang.Starshot_DebugTelemetryNo;
+        TelemetryVmText.Text = isVm
+            ? Lang.Starshot_DebugTelemetryYes
+            : Lang.Starshot_DebugTelemetryNo;
     }
 
     private void RefreshExtractState()
