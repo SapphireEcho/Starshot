@@ -71,6 +71,20 @@ public sealed partial class ImageViewWindow : Window
         AdaptTitleBarButtonColorToActuallTheme();
         SetIcon();
         ScrollViewer_Image.SetArePointerWheelEventsIgnored(true);
+        ApplyMinimumSize(UIScale);
+    }
+
+    /// <summary>
+    /// 最小尺寸，单位实际大小。经典 4K 显示器 1.5 倍缩放为 1000x600。
+    /// 换到不同 DPI 的屏幕时要按新缩放重新应用（presenter 不会自动换算）。
+    /// </summary>
+    private void ApplyMinimumSize(double scale)
+    {
+        if (AppWindow.Presenter is OverlappedPresenter presenter)
+        {
+            presenter.PreferredMinimumWidth = (int)(667 * scale);
+            presenter.PreferredMinimumHeight = (int)(400 * scale);
+        }
     }
 
     private void RootGrid_Loaded(object sender, RoutedEventArgs e)
@@ -874,6 +888,7 @@ public sealed partial class ImageViewWindow : Window
     {
         if (_lastUIScale != sender.RasterizationScale)
         {
+            ApplyMinimumSize(sender.RasterizationScale);
             DrawImage();
             _lastUIScale = sender.RasterizationScale;
         }
