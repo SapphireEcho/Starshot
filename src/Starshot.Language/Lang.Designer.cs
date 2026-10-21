@@ -2891,6 +2891,18 @@
             }
         }
 
+        public static string ScreenshotSetting_InfoWindow {
+            get {
+                return ResourceManager.GetString("ScreenshotSetting_InfoWindow", resourceCulture);
+            }
+        }
+
+        public static string ScreenshotSetting_ShowScreenshotInfoWindow {
+            get {
+                return ResourceManager.GetString("ScreenshotSetting_ShowScreenshotInfoWindow", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   查找类似 Info window duration 的本地化字符串。
         /// </summary>

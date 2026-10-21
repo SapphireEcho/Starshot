@@ -583,6 +583,15 @@ public static partial class AppConfig
     }
 
     /// <summary>
+    /// 截图信息浮窗总开关：开（默认）=正常显示；关=立即隐藏已有浮窗，后续截图不再弹出。
+    /// </summary>
+    public static bool ShowScreenshotInfoWindow
+    {
+        get => GetValue(true);
+        set => SetValue(value);
+    }
+
+    /// <summary>
     /// 全屏时静默截图通知：开=截图弹浮窗前检测独占全屏（SHQueryUserNotificationState），
     /// 全屏中不弹（浮窗会把游戏最小化到桌面），平时照常弹。
     /// 关（默认）=始终弹浮窗且不做检测，行为与引入本开关前完全一致。

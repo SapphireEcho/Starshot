@@ -606,6 +606,9 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
 
     private void ShowWindow(RectInt32 rect)
     {
+        // 仅屏蔽显示，保留截图完成计数和自动关闭流程。
+        if (!AppConfig.ShowScreenshotInfoWindow)
+            return;
         // 跨 DPI 屏移动会触发 WM_DPICHANGED，系统默认按 DPI 比例调整窗口 rect（位置偏）。
         // 连续 MoveAndResize 两次：第一次触发 DPI 更新（被系统调整），第二次时 DPI 已匹配该屏，落到精确位置。
         AppWindow.MoveAndResize(rect);
@@ -623,6 +626,24 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
         StartHideAnimation();
         await Task.Delay(600, cancellationToken);
         AppWindow?.Hide();
+        ResetCounters();
+    }
+
+    /// <summary>
+    /// 设置页关闭总开关时立即隐藏。未完成的任务不清计数——其完成回调仍会走
+    /// DisplayWindow → HideWindowAsync，由那条路径统一清理。
+    /// </summary>
+    public void HideFromSetting()
+    {
+        AppWindow.Hide();
+        if (_finishedImageCount >= _captureImageCount)
+        {
+            ResetCounters();
+        }
+    }
+
+    private void ResetCounters()
+    {
         _logger.LogInformation(
             "InfoWindow counters reset (was total={Total}, finished={Finished})",
             _captureImageCount,

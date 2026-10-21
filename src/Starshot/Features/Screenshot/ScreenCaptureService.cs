@@ -37,7 +37,7 @@ internal class ScreenCaptureService
     private RegionCaptureWindow? _regionWindow;
 
     /// <summary>
-    /// 浮窗是否显示：开关关（默认）恒显示（零检测，与引入开关前行为一致）；
+    /// 全屏静默关闭（默认）时直接显示；
     /// 开=弹窗前查会话状态，D3D 独占全屏运行中不显示（浮窗会把游戏最小化到桌面），其余照常。
     /// 查询失败按可显示处理——检测不可用不误伤正常弹窗。
     /// </summary>
@@ -62,6 +62,9 @@ internal class ScreenCaptureService
     {
         Instance.CaptureInternal();
     }
+
+    /// <summary>隐藏已有信息浮窗并清理计数（与自动关闭走同一套清理）。</summary>
+    public static void HideInfoWindow() => _instance?._infoWindow?.HideFromSetting();
 
     /// <summary>
     /// 设置页切换「信息浮窗对屏幕捕获隐身」后，让已存在的浮窗立即应用新状态
