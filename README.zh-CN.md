@@ -14,7 +14,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/loliri/Starshot?tab=MIT-1-ov-file)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6?style=flat-square&logo=windows)](../../releases)
 
-[官网](https://starshot.cialo.site) · [下载](https://starshot.cialo.site/download) · [快速上手](#快速上手) · [功能详解](#功能详解) · [从源码构建](#从源码构建)
+[官网](https://starshot.cialo.site) · [下载](https://starshot.cialo.site/download) · [快速上手](#快速上手) · [功能详解](#功能详解) · [常见问题](#常见问题) · [从源码构建](#从源码构建)
 
 **[English](README.md)** | **简体中文** |
 [繁體中文](docs/README.zh-TW.md) | [日本語](docs/README.ja.md) | [Français](docs/README.fr.md) | [Русский](docs/README.ru.md) | [Español](docs/README.es.md)
@@ -191,8 +191,9 @@ HDR 截图可同时保存一份 Ultra HDR JPEG（SDR 基图 + HDR gain map），
 
 ### 信息浮窗
 
-截图后弹出缩略图 + 状态浮窗（不影响截图——设了 `WDA_EXCLUDEFROMCAPTURE`，其它截图工具捕获不到此窗口）：
+截图后弹出缩略图 + 状态浮窗。
 
+- 默认设了 `WDA_EXCLUDEFROMCAPTURE` 对屏幕捕获隐身，可在外观设置里关闭
 - **处理中**（旋转动画）/ **已保存**（带打开按钮）/ **已复制**（绿色勾）/ **失败**
 - 多次连拍计数器（如 2/3）
 - Composition 动画滑入/滑出
@@ -209,7 +210,7 @@ HDR 截图可同时保存一份 Ultra HDR JPEG（SDR 基图 + HDR gain map），
 
 - 独立页面浏览 Windows 剪贴板历史（Win+V）中的图片项
 - 读取 `Clipboard.GetHistoryItemsAsync`，按时间倒序平铺
-- **当前剪贴板卡片**：超过系统历史单条目大小上限（约 4MB）的大图能正常放上剪贴板但不进 Win+V——页面顶部实时展示当前剪贴板内容补上这块反馈；与历史第一条逐像素比对，相同则隐藏（小图不重复出现）
+- **当前剪贴板卡片**，当与剪贴板历史记录首位逐像素比对不同时显示
 - 剪贴板变化自动刷新（ContentChanged 监听 + 节流）+ 回前台补刷
 - 点击预览（图片查看器，支持上一张/下一张）
 - 右键菜单：信息（格式/尺寸/大小）/ 打开 / 识别文字 / 重新复制 / 从历史删除；多选后删除作用于全部选中项
@@ -280,6 +281,7 @@ HDR 截图可同时保存一份 Ultra HDR JPEG（SDR 基图 + HDR gain map），
 ## 已知限制
 
 - 区域截图覆盖层打开瞬间，光标仍**有概率**是系统默认形状，需**移动一次鼠标后**十字光标才出现，已尽最大努力修复，仍有小概率出现此情况，目前无解决方案，原因未知
+- 少数情况下截图十字光标会泄漏到主窗口，概率极小，目前无解决方案，原因未知
 - JPEG XL 的 HDR 输出不写入内容亮度元数据（依赖的编码库封装层未暴露该接口），个别浏览器可能因此压暗高光；AVIF 与 PNGv3 已写入，不受影响
 - 视频壁纸启动时可能因 MF 媒体管线竞争初始化失败（间歇，未根治）；加载时先显示视频同目录的随机图片作占位，卡死则保持占位图，不黑屏
 - 应用通知需要向注册表注册应用身份，由于卸载器是外部维护，卸载时不会自动清理。残留项：
@@ -492,6 +494,13 @@ Starshot 使用 Win32 原生剪贴板 API 写入，理论上比 WinRT 更可靠�
 <summary><b>Windows 10 截图是 SDR 的，HDR 功能在哪？</b></summary>
 
 Windows 10 的 WGC 不支持 HDR 像素格式捕获，系统合成器只能提供 8bit SDR 帧。因此在 Windows 10 上无论全屏还是区域截图都只能得到 SDR 图像；HDR 截图需要 Windows 11。
+
+</details>
+
+<details>
+<summary><b>开着 NVIDIA 桌面录制时截图，提示「Starshot 正在阻止桌面录制」，即时回放被关掉？</b></summary>
+
+截图后的信息浮窗设了 `WDA_EXCLUDEFROMCAPTURE`（对屏幕捕获隐身），NVIDIA App 的桌面录制会把这个标记判定为受保护内容，于是停止录制。到「外观」设置里关掉「信息浮窗对屏幕捕获隐身」即可，之后浮窗会正常出现在屏幕捕获画面里。
 
 </details>
 

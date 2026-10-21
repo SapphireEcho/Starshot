@@ -12,7 +12,7 @@ Full 16-bit HDR Pipeline · Region Screenshot · AVIF / JPEG XL / PNGv3 Encoding
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/loliri/Starshot?tab=MIT-1-ov-file)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6?style=flat-square&logo=windows)](../../releases)
 
-[Website](https://starshot.cialo.site) · [Download](https://starshot.cialo.site/download) · [Quick Start](#quick-start) · [Features](#features) · [Build from Source](#build-from-source)
+[Website](https://starshot.cialo.site) · [Download](https://starshot.cialo.site/download) · [Quick Start](#quick-start) · [Features](#features) · [FAQ](#faq) · [Build from Source](#build-from-source)
 
 **English** | **[简体中文](README.zh-CN.md)** |
 [繁體中文](docs/README.zh-TW.md) | [日本語](docs/README.ja.md) | [Français](docs/README.fr.md) | [Русский](docs/README.ru.md) | [Español](docs/README.es.md)
@@ -189,8 +189,9 @@ Illegal filename characters are uniformly replaced with `_`. The subfolder class
 
 ### Info Toast
 
-After a screenshot, a thumbnail + status toast pops up (does not interfere with screenshots — has `WDA_EXCLUDEFROMCAPTURE` set so other screenshot tools cannot capture this window):
+After a screenshot, a thumbnail + status toast pops up.
 
+- Has `WDA_EXCLUDEFROMCAPTURE` set by default, keeping it out of screen captures; can be turned off in Appearance settings
 - **Processing** (spinner animation) / **Saved** (with open button) / **Copied** (green checkmark) / **Failed**
 - Multi-shot counter for bursts (e.g., 2/3).
 - Composition slide-in / slide-out animations.
@@ -207,7 +208,7 @@ After a screenshot, a thumbnail + status toast pops up (does not interfere with 
 
 - Dedicated page for browsing Windows clipboard history (Win+V) image items
 - Reads `Clipboard.GetHistoryItemsAsync`, flat layout sorted by time
-- **Current-clipboard card**: images above the system history per-item size limit (~4MB) still land on the clipboard but never enter Win+V — the card shows the current clipboard content in real time at the top of the page; pixel-compared against the first history entry and hidden when identical (small images never appear twice)
+- **Current-clipboard card**, shown when it differs pixel-by-pixel from the first clipboard history entry
 - Auto-refresh on clipboard change (ContentChanged + throttle) + refresh on window activation
 - Click to preview (image viewer, with previous/next navigation)
 - Context menu: Info (format/size/dimensions) / Open / Recognize Text / Recopy / Delete from history; deleting with multiple items selected removes all of them
@@ -278,6 +279,7 @@ Displays the logo + tagline on startup. Delays 700ms then fades out over 400ms. 
 ## Known Limitations
 
 - At the moment the region screenshot overlay opens, the cursor **may still sometimes** appear as the system default shape. The crosshair cursor appears only **after the mouse is moved once**. Despite our best efforts to fix this, it still occurs with a small probability. There is currently no solution, and the cause is unknown.
+- In rare cases the crosshair cursor can leak into the main window. The probability is very low; there is currently no solution, and the cause is unknown.
 - HDR JPEG XL output does not embed content light level metadata (the codec wrapper does not expose the API); some browsers may dim highlights as a result. AVIF and PNGv3 embed it and are not affected.
 - Video wallpaper may fail to initialize on startup due to MF media pipeline contention (intermittent, not fully resolved); during load a random image from the video's directory is shown as a placeholder, and kept if the video gets stuck — no black screen.
 - App notifications require registering the app identity in the registry. The uninstaller is maintained externally, so these entries are not removed on uninstall. Leftovers:
@@ -490,6 +492,13 @@ Starshot uses the Win32 native clipboard API for writing, which is theoretically
 <summary><b>Screenshots on Windows 10 come out as SDR — where's HDR?</b></summary>
 
 WGC on Windows 10 does not support HDR pixel format capture; the system compositor can only provide 8-bit SDR frames. On Windows 10, both full-screen and region captures are SDR only. HDR capture requires Windows 11.
+
+</details>
+
+<details>
+<summary><b>With NVIDIA desktop recording on, screenshots show "Starshot is blocking desktop recording" and Instant Replay gets turned off?</b></summary>
+
+The info toast shown after a screenshot has `WDA_EXCLUDEFROMCAPTURE` set (hidden from screen capture). NVIDIA App's desktop recording treats this flag as protected content and stops recording. Turn off "Hide info window from screen capture" in Appearance settings; the toast will then appear normally in screen captures.
 
 </details>
 
