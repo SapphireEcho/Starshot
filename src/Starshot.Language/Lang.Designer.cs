@@ -564,6 +564,15 @@
         }
         
         /// <summary>
+        ///   查找类似 Always on Top 的本地化字符串。
+        /// </summary>
+        public static string ImageViewWindow_AlwaysOnTop {
+            get {
+                return ResourceManager.GetString("ImageViewWindow_AlwaysOnTop", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   查找类似 Copied to clipboard. 的本地化字符串。
         /// </summary>
         public static string ImageViewWindow_CopiedToClipboard {

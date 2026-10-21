@@ -241,6 +241,9 @@
   <data name="ScreenshotFolderManageDialog_ImagesFromTheFollowingFoldersWillBeDisplayedInTheGallery" xml:space="preserve">
     <value>ギャラリーには、以下のフォルダの画像が表示されます。</value>
   </data>
+  <data name="ImageViewWindow_AlwaysOnTop" xml:space="preserve">
+    <value>常に手前に表示</value>
+  </data>
   <data name="ImageViewWindow_OpenInExplorer" xml:space="preserve">
     <value>エクスプローラーで開く</value>
   </data>

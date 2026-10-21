@@ -268,6 +268,35 @@
       Orientation="Horizontal"
       Spacing="6"
     >
+      <!--  置顶  -->
+      <ToggleButton
+        x:Name="ToggleButton_AlwaysOnTop"
+        Width="40"
+        Height="36"
+        Padding="0"
+        Checked="ToggleButton_AlwaysOnTop_Checked"
+        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
+        ToolTipService.ToolTip="{x:Bind lang:Lang.ImageViewWindow_AlwaysOnTop}"
+        Unchecked="ToggleButton_AlwaysOnTop_Unchecked"
+      >
+        <Grid>
+          <fluent:SymbolIcon
+            FontSize="16"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+            IsTextScaleFactorEnabled="False"
+            Symbol="Pin"
+            Visibility="{x:Bind local:ImageViewWindow.ObjectToVisibilityReversed(ToggleButton_AlwaysOnTop.IsChecked)}"
+          />
+          <fluent:SymbolIcon
+            FontSize="16"
+            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+            IconVariant="Filled"
+            IsTextScaleFactorEnabled="False"
+            Symbol="Pin"
+            Visibility="{x:Bind ToggleButton_AlwaysOnTop.IsChecked}"
+          />
+        </Grid>
+      </ToggleButton>
       <!--  全屏  -->
       <Button
         x:Name="Button_OpenFullScreen"

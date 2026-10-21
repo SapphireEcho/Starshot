@@ -158,6 +158,8 @@ public sealed partial class ImageViewWindow : Window
             MenuFlyoutItem_CopyImage.Click -= MenuFlyoutItem_CopyImage_Click;
             Button_DeleteImage.Click -= Button_DeleteImage_Click;
             Button_OpenFullScreen.Click -= Button_OpenFullScreen_Click;
+            ToggleButton_AlwaysOnTop.Checked -= ToggleButton_AlwaysOnTop_Checked;
+            ToggleButton_AlwaysOnTop.Unchecked -= ToggleButton_AlwaysOnTop_Unchecked;
             Button_PreviousImage.Click -= Button_PreviousImage_Click;
             Button_NextImage.Click -= Button_NextImage_Click;
             Button_Minimize.Click -= Button_Minimize_Click;
@@ -1696,6 +1698,31 @@ public sealed partial class ImageViewWindow : Window
         FullScreen();
     }
 
+    private void ToggleButton_AlwaysOnTop_Checked(object sender, RoutedEventArgs e)
+    {
+        SetAlwaysOnTop(true);
+    }
+
+    private void ToggleButton_AlwaysOnTop_Unchecked(object sender, RoutedEventArgs e)
+    {
+        SetAlwaysOnTop(false);
+    }
+
+    /// <summary>
+    /// 置顶开关。进出全屏会换成新 presenter，退出时需按开关状态重新应用。
+    /// </summary>
+    private void SetAlwaysOnTop(bool value)
+    {
+        try
+        {
+            if (AppWindow.Presenter is OverlappedPresenter presenter)
+            {
+                presenter.IsAlwaysOnTop = value;
+            }
+        }
+        catch { }
+    }
+
     private void Button_Minimize_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -1735,6 +1762,8 @@ public sealed partial class ImageViewWindow : Window
             else
             {
                 AppWindow.SetPresenter(AppWindowPresenterKind.Overlapped);
+                // 换回 Overlapped 是新 presenter，置顶状态按开关重新应用
+                SetAlwaysOnTop(ToggleButton_AlwaysOnTop.IsChecked is true);
                 RowDefinition_0.Height = new GridLength(48);
                 RowDefinition_2.Height = new GridLength(0, GridUnitType.Auto);
                 RowDefinition_3.Height = new GridLength(48);

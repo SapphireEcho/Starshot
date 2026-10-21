@@ -241,6 +241,9 @@
   <data name="ScreenshotFolderManageDialog_ImagesFromTheFollowingFoldersWillBeDisplayedInTheGallery" xml:space="preserve">
     <value>以下文件夹中的图片都会显示在图库中</value>
   </data>
+  <data name="ImageViewWindow_AlwaysOnTop" xml:space="preserve">
+    <value>置顶</value>
+  </data>
   <data name="ImageViewWindow_OpenInExplorer" xml:space="preserve">
     <value>在资源管理器中打开</value>
   </data>
