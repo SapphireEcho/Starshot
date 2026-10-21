@@ -111,6 +111,8 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
 
     private bool _noCopyStatus; // 空结果等"非成功非失败"态：右侧图标转黄、小字改"未复制"
 
+    private bool _canOpenClipboardImage; // 仅复制模式下右侧改为"打开"按钮，点击打开剪贴板图片
+
     private string? _errorTextOverride; // OCR 失败等场景的错误主文案覆盖（null=默认"截图失败"）
 
     private string? _lastFile;
@@ -226,20 +228,23 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
     }
 
     /// <summary>
-    /// 仅复制成功：显示缩略图 + "已复制"，无文件、无打开按钮。
+    /// 仅复制成功：显示缩略图 + "已复制"，无文件；右侧默认无打开按钮，canOpenClipboardImage 时改为打开剪贴板图片。
     /// statusText 覆盖状态主文案（OCR 复制传"已复制识别文本"）；noCopy=true 表示
     /// 非成功非失败的中性态（未识别到文字）：右侧图标转黄、小字改"未复制"。
+    /// canOpenClipboardImage=true 时右侧换成"打开"按钮，点击打开剪贴板图片。
     /// </summary>
     public void CaptureCopySuccess(
         Microsoft.UI.DisplayId displayId,
         CanvasBitmap? bitmap,
         float maxCLL = -1,
         string? statusText = null,
-        bool noCopy = false
+        bool noCopy = false,
+        bool canOpenClipboardImage = false
     )
     {
         _statusTextOverride = statusText;
         _noCopyStatus = noCopy;
+        _canOpenClipboardImage = canOpenClipboardImage;
         if (bitmap is null)
             return;
         try
@@ -294,7 +299,8 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
     }
 
     /// <summary>
-    /// 根据 _isCopy / complete 设置状态文字、图标、按钮（仅复制模式显示"已复制"，无打开按钮）
+    /// 根据 _isCopy / complete 设置状态文字、图标、按钮（仅复制模式显示"已复制"，
+    /// 需要时可改为打开剪贴板图片的按钮）
     /// </summary>
     private void ApplyStatusVisual()
     {
@@ -335,8 +341,12 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
             {
                 TextBlock_Repeat.Visibility = Visibility.Collapsed;
             }
-            Button_OpenImage.Visibility = Visibility.Collapsed;
-            StackPanel_CopyStatus.Visibility = Visibility.Visible;
+            Button_OpenImage.Visibility = _canOpenClipboardImage
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            StackPanel_CopyStatus.Visibility = _canOpenClipboardImage
+                ? Visibility.Collapsed
+                : Visibility.Visible;
             return;
         }
         StackPanel_CopyStatus.Visibility = Visibility.Collapsed;
@@ -665,6 +675,22 @@ public sealed partial class ScreenCaptureInfoWindow : WindowEx
     {
         try
         {
+            if (_isCopy && _canOpenClipboardImage)
+            {
+                // 仅复制模式：打开剪贴板里的图片（与剪贴板页点击当前剪贴板卡同一条链）
+                var streamRef = await ClipboardHelper.GetClipboardImageAsync();
+                if (streamRef is null)
+                {
+                    return;
+                }
+                var item = ScreenshotItem.FromCurrentClipboard(streamRef);
+                _ = new ImageViewWindow().ShowWindowAsync(AppWindow.Id, item, null);
+                if (_finishedImageCount == _captureImageCount)
+                {
+                    await HideWindowAsync(_openImageCancellationToken);
+                }
+                return;
+            }
             if (string.IsNullOrWhiteSpace(_lastFile))
             {
                 return;

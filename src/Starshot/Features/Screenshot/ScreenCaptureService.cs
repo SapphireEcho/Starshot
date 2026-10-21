@@ -494,7 +494,11 @@ internal class ScreenCaptureService
                     }
                     else
                     {
-                        _infoWindow.CaptureCopySuccess(dispId, sdrCrop);
+                        _infoWindow.CaptureCopySuccess(
+                            dispId,
+                            sdrCrop,
+                            canOpenClipboardImage: true
+                        );
                     }
                 }
                 _logger.LogInformation(ocrCopy ? "Region OCR copy done" : "Region copy-only done");
