@@ -412,6 +412,9 @@ Contributions welcome:
 - Have a feature suggestion? [Start a Discussion](../../issues/new)
 - Want to contribute code? Submit a [Pull Request](../../pulls)
 
+> [!IMPORTANT]
+> Run `csharpier format .` before opening a PR to keep the code consistently formatted, and state in the PR description that the submitted code has been formatted.
+
 Thanks to every user for the feedback and support!
 
 ## FAQ
